@@ -532,7 +532,7 @@ def update_allow_lists(args):
         - Deleting all content selectors and content selector privileges
         - Creating content selectors and content selector privileges according
           to the tier and allowlists
-        - Updating the anonymous accounds only role role with the previously
+        - Updating the anonymous accounts only role role with the previously
         defined content selector privileges
 
     Args:
