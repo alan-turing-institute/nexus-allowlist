@@ -20,6 +20,10 @@ _NEXUS_REPOSITORIES = {
 _ROLE_NAME = "safe haven user"
 
 
+class InitialPasswordException(Exception):
+    pass
+
+
 class NexusAPI:
     """Interface to the Nexus REST API"""
 
@@ -442,9 +446,34 @@ def main():
     )
     parser_update.set_defaults(func=update_allow_lists)
 
+    parser_all = subparsers.add_parser(
+        "all",
+        help="Run all actions",
+        parents=[tier_parser]
+    )
+    parser_all.set_defaults(func=all_actions)
+
     args = parser.parse_args()
 
     args.func(args)
+
+
+def all_actions(args):
+    run_initial_configuration = True
+
+    try:
+        change_initial_password(args)
+    except InitialPasswordException:
+        print(
+            "Initial password appears to have been changed.\n"
+            "Not running initial configuration"
+        )
+        run_initial_configuration = False
+
+    if run_initial_configuration:
+        initial_configuration(args)
+
+    update_allow_lists(args)
 
 
 def change_initial_password(args):
@@ -466,7 +495,7 @@ def change_initial_password(args):
         with password_file_path.open() as password_file:
             initial_password = password_file.read()
     except FileNotFoundError:
-        raise Exception(
+        raise InitialPasswordException(
             "Initial password appears to have been already changed"
         )
 
