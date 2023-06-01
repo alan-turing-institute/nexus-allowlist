@@ -28,7 +28,7 @@ class NexusAPI:
     """Interface to the Nexus REST API"""
 
     def __init__(self, *, password, username="admin", nexus_host, nexus_port):
-        self.nexus_api_root = f"{nexus_host}:{nexus_port}/service/rest"
+        self.nexus_api_root = f"http://{nexus_host}:{nexus_port}/service/rest"
         self.username = username
         self.password = password
 
