@@ -1,0 +1,26 @@
+---
+version: "3"
+services:
+  nexus:
+    container_name: nexus
+    image: sonatype/nexus3:3.54.1
+    ports:
+      - "8081:8081"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./nexus-data:/nexus-data
+    restart: always
+  allowlist:
+    container_name: allowlist
+    image: nexus-allowlist
+    build: .
+    environment:
+      NEXUS_ADMIN_PASSWORD: "password"
+      NEXUS_TIER: "3"
+      NEXUS_HOST: "nexus"
+      NEXUS_PORT: "8081"
+    volumes:
+      - ./allowlists:/allowlists
+      - ./nexus-data:/nexus-data
+    restart: always
