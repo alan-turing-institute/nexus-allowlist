@@ -27,9 +27,8 @@ class InitialPasswordException(Exception):
 class NexusAPI:
     """Interface to the Nexus REST API"""
 
-    def __init__(self, *, password, username="admin",
-                 nexus_path="http://localhost", nexus_port="80"):
-        self.nexus_api_root = f"{nexus_path}:{nexus_port}/service/rest"
+    def __init__(self, *, password, username="admin", nexus_host, nexus_port):
+        self.nexus_api_root = f"{nexus_host}:{nexus_port}/service/rest"
         self.username = username
         self.password = password
 
@@ -391,6 +390,18 @@ def main():
         required=True,
         help="Password for the Nexus 'admin' account",
     )
+    parser.add_argument(
+        "--nexus-host",
+        type=str,
+        default="http://localhost",
+        help="Hostname of the Nexus server (default http://localhost)"
+    )
+    parser.add_argument(
+        "--nexus-port",
+        type=str,
+        default="80",
+        help="Port of the Nexus server (default 80)"
+    )
 
     # Group of arguments for tiers and package files
     tier_parser = ArgumentParser(add_help=False)
@@ -499,7 +510,11 @@ def change_initial_password(args):
             "Initial password appears to have been already changed"
         )
 
-    nexus_api = NexusAPI(password=initial_password)
+    nexus_api = NexusAPI(
+        password=initial_password,
+        nexus_host=args.nexus_host,
+        nexus_port=args.nexus_port
+    )
 
     nexus_api.change_admin_password(args.admin_password)
 
@@ -525,7 +540,11 @@ def initial_configuration(args):
     """
     check_package_files(args)
 
-    nexus_api = NexusAPI(password=args.admin_password)
+    nexus_api = NexusAPI(
+        password=args.admin_password,
+        nexus_host=args.nexus_host,
+        nexus_port=args.nexus_port
+    )
 
     # Ensure only desired repositories exist
     recreate_repositories(nexus_api)
@@ -569,7 +588,11 @@ def update_allow_lists(args):
     """
     check_package_files(args)
 
-    nexus_api = NexusAPI(password=args.admin_password)
+    nexus_api = NexusAPI(
+        password=args.admin_password,
+        nexus_host=args.nexus_host,
+        nexus_port=args.nexus_port
+    )
 
     pypi_allowlist, cran_allowlist = get_allowlists(args.pypi_package_file,
                                                     args.cran_package_file)
