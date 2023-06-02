@@ -16,7 +16,7 @@ if ! [ -f "$CRAN_ALLOWLIST" ]; then
 fi
 
 # Wait for Nexus
-until curl "$NEXUS_HOST":"$NEXUS_PORT"; do
+until curl -s "$NEXUS_HOST":"$NEXUS_PORT" > /dev/null; do
     echo "Waiting for Nexus"
     sleep 10
 done
