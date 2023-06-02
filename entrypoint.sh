@@ -28,5 +28,5 @@ if [ -f "$NEXUS_DATA_DIR/admin.password" ]; then
     python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" initial-configuration --tier "$NEXUS_TIER" --pypi-package-file "$ALLOWLIST_DIR/pypi.allowlist" --cran-package-file "$ALLOWLIST_DIR/cran.allowlist"
 fi
 
-# Rerun allowlist configuration whenever allowlist files are modified
+# Run allowlist configuration AND rerun whenever allowlist files are modified
 find "$ALLOWLIST_DIR"/*.allowlist | entr -n python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --tier "$NEXUS_TIER" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
