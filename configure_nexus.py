@@ -17,7 +17,7 @@ _NEXUS_REPOSITORIES = {
     )
 }
 
-_ROLE_NAME = "safe haven user"
+_ROLE_NAME = "nexus user"
 
 
 class InitialPasswordException(Exception):
@@ -532,7 +532,7 @@ def initial_configuration(args):
     # Delete non-default roles
     nexus_api.delete_all_custom_roles()
 
-    # Create a role for safe haven users
+    # Create a role
     nexus_api.create_role(
         name=_ROLE_NAME,
         description="allows access to selected packages",
@@ -574,7 +574,7 @@ def update_allow_lists(args):
     privileges = recreate_privileges(args.tier, nexus_api, pypi_allowlist,
                                      cran_allowlist)
 
-    # Update role for safe haven users
+    # Update role
     nexus_api.update_role(
         name=_ROLE_NAME,
         description="allows access to selected packages",
