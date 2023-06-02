@@ -1,10 +1,5 @@
 #!/usr/bin/env sh
 
-echo "$NEXUS_ADMIN_PASSWORD"
-echo "$NEXUS_TIER"
-echo "$NEXUS_HOST"
-echo "$NEXUS_PORT"
-
 export NEXUS_DATA_DIR=/nexus-data
 export ALLOWLIST_DIR=/allowlists
 
