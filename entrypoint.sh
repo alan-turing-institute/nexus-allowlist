@@ -2,9 +2,18 @@
 
 export NEXUS_DATA_DIR=/nexus-data
 export ALLOWLIST_DIR=/allowlists
+export PYPI_ALLOWLIST="$ALLOWLIST_DIR"/pypi.allowlist
+export CRAN_ALLOWLIST="$ALLOWLIST_DIR"/cran.allowlist
 
-ls "$ALLOWLIST_DIR"/*.allowlist
-ls "$ALLOWLIST_DIR"
+# Ensure allowlist files exist
+if ! [ -f "$PYPI_ALLOWLIST" ]; then
+    echo "PyPI allowlist not found"
+    exit 1
+fi
+if ! [ -f "$CRAN_ALLOWLIST" ]; then
+    echo "CRAN allowlist not found"
+    exit 1
+fi
 
 # Wait for Nexus
 until curl "$NEXUS_HOST":"$NEXUS_PORT"; do
@@ -20,4 +29,4 @@ if [ -f "$NEXUS_DATA_DIR/admin.password" ]; then
 fi
 
 # Rerun allowlist configuration whenever allowlist files are modified
-ls "$ALLOWLIST_DIR"/*.allowlist | entr -n python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --tier "$NEXUS_TIER" --pypi-package-file "$ALLOWLIST_DIR/pypi.allowlist" --cran-package-file "$ALLOWLIST_DIR/cran.allowlist"
+find "$ALLOWLIST_DIR"/*.allowlist | entr -n python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --tier "$NEXUS_TIER" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
