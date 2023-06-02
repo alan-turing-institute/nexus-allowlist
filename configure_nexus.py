@@ -403,24 +403,26 @@ def main():
         help="Port of the Nexus server (default 80)"
     )
 
-    # Group of arguments for tiers and package files
-    tier_parser = ArgumentParser(add_help=False)
-    tier_parser.add_argument(
-        "--tier",
-        type=int,
+    # Group of arguments for packages
+    packages_parser = ArgumentParser(add_help=False)
+    packages_parser.add_argument(
+        "--packages",
+        type=str,
         required=True,
-        choices=[2, 3],
-        help="Data security tier of the repository",
+        choices=["all", "selected"],
+        help="Whether to allow 'all' packages or only 'selected' packages",
     )
-    tier_parser.add_argument(
+    packages_parser.add_argument(
         "--pypi-package-file",
         type=Path,
-        help="Path of the file of allowed PyPI packages, ignored when TIER!=3"
+        help=("Path of the file of allowed PyPI packages,"
+              " ignored when PACKAGES is all")
     )
-    tier_parser.add_argument(
+    packages_parser.add_argument(
         "--cran-package-file",
         type=Path,
-        help="Path of the file of allowed CRAN packages, ignored when TIER!=3"
+        help=("Path of the file of allowed CRAN packages,"
+              " ignored when PACKAGES is all")
     )
 
     subparsers = parser.add_subparsers(
@@ -445,7 +447,7 @@ def main():
     parser_configure = subparsers.add_parser(
         "initial-configuration",
         help="Configure the Nexus repository",
-        parents=[tier_parser]
+        parents=[packages_parser]
     )
     parser_configure.set_defaults(func=initial_configuration)
 
@@ -453,7 +455,7 @@ def main():
     parser_update = subparsers.add_parser(
         "update-allowlists",
         help="Update the Nexus package allowlists",
-        parents=[tier_parser]
+        parents=[packages_parser]
     )
     parser_update.set_defaults(func=update_allow_lists)
 
@@ -503,7 +505,7 @@ def initial_configuration(args):
         - Creating CRAN and PyPI proxies
         - Deleting all content selectors and content selector privileges
         - Creating content selectors and content selector privileges according
-          to the tier and allowlists
+          to the package setting and allowlists
         - Deleting all non-default roles
         - Creating a role with the previously defined content selector
           privileges
@@ -526,7 +528,7 @@ def initial_configuration(args):
 
     pypi_allowlist, cran_allowlist = get_allowlists(args.pypi_package_file,
                                                     args.cran_package_file)
-    privileges = recreate_privileges(args.tier, nexus_api, pypi_allowlist,
+    privileges = recreate_privileges(args.packages, nexus_api, pypi_allowlist,
                                      cran_allowlist)
 
     # Delete non-default roles
@@ -554,7 +556,7 @@ def update_allow_lists(args):
     The following steps will occur:
         - Deleting all content selectors and content selector privileges
         - Creating content selectors and content selector privileges according
-          to the tier and allowlists
+          to the packages setting and allowlists
         - Updating the anonymous accounts only role role with the previously
         defined content selector privileges
 
@@ -571,7 +573,7 @@ def update_allow_lists(args):
 
     pypi_allowlist, cran_allowlist = get_allowlists(args.pypi_package_file,
                                                     args.cran_package_file)
-    privileges = recreate_privileges(args.tier, nexus_api, pypi_allowlist,
+    privileges = recreate_privileges(args.packages, nexus_api, pypi_allowlist,
                                      cran_allowlist)
 
     # Update role
@@ -665,11 +667,11 @@ def recreate_repositories(nexus_api):
         nexus_api.create_proxy_repository(**repository)
 
 
-def recreate_privileges(tier, nexus_api, pypi_allowlist=[],
+def recreate_privileges(packages, nexus_api, pypi_allowlist=[],
                         cran_allowlist=[]):
     """
-    Create content selectors and content selector privileges based on tier and
-    allowlists in an idempotent manner
+    Create content selectors and content selector privileges based on the
+    package setting and allowlists in an idempotent manner
 
     Args:
         nexus_api: NexusAPI object
@@ -714,8 +716,9 @@ def recreate_privileges(tier, nexus_api, pypi_allowlist=[],
     )
     cran_privilege_names.append(privilege_name)
 
-    # Create content selectors and privileges for packages according to the tier
-    if tier == 2:
+    # Create content selectors and privileges for packages according to the
+    # package setting
+    if packages == "all":
         # Allow all PyPI packages
         privilege_name = create_content_selector_and_privilege(
             nexus_api,
@@ -737,7 +740,7 @@ def recreate_privileges(tier, nexus_api, pypi_allowlist=[],
             repo=_NEXUS_REPOSITORIES["cran_proxy"]["name"]
         )
         cran_privilege_names.append(privilege_name)
-    elif tier == 3:
+    elif packages == "selected":
         # Allow selected PyPI packages
         for package in pypi_allowlist:
             privilege_name = create_content_selector_and_privilege(

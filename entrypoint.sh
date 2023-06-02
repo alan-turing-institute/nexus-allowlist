@@ -26,10 +26,10 @@ echo "Connected to Nexus"
 if [ -f "$NEXUS_DATA_DIR/admin.password" ]; then
     echo "Initial password file present, running initial configuration"
     python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" change-initial-password --path "$NEXUS_DATA_DIR"
-    python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" initial-configuration --tier "$NEXUS_TIER" --pypi-package-file "$ALLOWLIST_DIR/pypi.allowlist" --cran-package-file "$ALLOWLIST_DIR/cran.allowlist"
+    python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" initial-configuration --packages "$NEXUS_PACKAGES" --pypi-package-file "$ALLOWLIST_DIR/pypi.allowlist" --cran-package-file "$ALLOWLIST_DIR/cran.allowlist"
 else
     echo "No initial password file found, skipping initial configuration"
 fi
 
 # Run allowlist configuration AND rerun whenever allowlist files are modified
-find "$ALLOWLIST_DIR"/*.allowlist | entr -n python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --tier "$NEXUS_TIER" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+find "$ALLOWLIST_DIR"/*.allowlist | entr -n python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
