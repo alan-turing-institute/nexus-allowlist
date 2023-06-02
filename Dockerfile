@@ -7,6 +7,6 @@ COPY configure_nexus.py .
 COPY requirements.txt .
 
 RUN apk add --no-cache curl entr
-RUN pip3 install -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 CMD ["./entrypoint.sh"]
