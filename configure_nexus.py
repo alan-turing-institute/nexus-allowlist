@@ -640,14 +640,14 @@ def get_allowlist(allowlist_path, is_cran):
     with open(allowlist_path, "r") as allowlist_file:
         # Sanitise package names
         # - convert to lower case if the package is on PyPI. Leave alone on CRAN to prevent issues with case-sensitivity
-        # - convert special characters to '-'
+        # - for PyPI replace strings of '.', '_' or '-' with '-' https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#name
         # - remove any blank entries, which act as a wildcard that would allow any package
-        special_characters = re.compile(r"[^0-9a-zA-Z]+")
+        pypi_replace_characters = re.compile(r"[\._-]+")
         for package_name in allowlist_file.readlines():
             if is_cran:
-                package_name = special_characters.sub("-", package_name.strip())
+                package_name = package_name.strip()
             else:
-                package_name = special_characters.sub("-", package_name.lower().strip())
+                package_name = pypi_replace_characters.sub("-", package_name.lower().strip())
             if package_name:
                 allowlist.append(package_name)
     return allowlist
