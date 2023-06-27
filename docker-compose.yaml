@@ -26,6 +26,6 @@ services:
     container_name: reverse-proxy
     image: caddy:2.6-alpine
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile

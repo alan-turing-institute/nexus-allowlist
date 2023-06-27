@@ -59,8 +59,8 @@ For example
 
 ```
 [global]
-index = http://localhost:8081/repository/pypi-proxy/pypi
-index-url = http://localhost:8081/repository/pypi-proxy/simple
+index = http://localhost:8080/repository/pypi-proxy/pypi
+index-url = http://localhost:8080/repository/pypi-proxy/simple
 ```
 
 You should now only be able to install packages from the allowlist.
@@ -78,7 +78,7 @@ For example
 ```
 local({
     r <- getOption("repos")
-    r["CRAN"] <- "http://localhost:8081/repository/cran-proxy"
+    r["CRAN"] <- "http://localhost:8080/repository/cran-proxy"
     options(repos=r)
 })
 ```

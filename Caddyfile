@@ -4,10 +4,9 @@
     }
 }
 
-nexus.docker.localhost:80 {
+:80 {
     reverse_proxy http://nexus:8081 {
         @error status 401
         replace_status @error 403
-
     }
 }
