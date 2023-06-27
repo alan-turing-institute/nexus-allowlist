@@ -49,6 +49,9 @@ The container [command](entrypoint.sh)
   1. Runs initial configuration (creates a role, repositories, content selectors, _etc._)
 1. Reruns the content selector configuration (which enforces the allowlists) every time either of the allowlist files are modified
 
+[Caddy](https://caddyserver.com/) acts as a reverse proxy, passing requests to the Nexus OSS server.
+The [configuration file](Caddyfile) replaces [401](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401) responses from Nexus OSS with [403](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403) so that pip does not prompt a user for authentication when attempting to install a blacked package.
+
 ### Usage
 
 #### Pip
@@ -59,8 +62,8 @@ For example
 
 ```
 [global]
-index = http://localhost:8081/repository/pypi-proxy/pypi
-index-url = http://localhost:8081/repository/pypi-proxy/simple
+index = http://localhost:8080/repository/pypi-proxy/pypi
+index-url = http://localhost:8080/repository/pypi-proxy/simple
 ```
 
 You should now only be able to install packages from the allowlist.
@@ -78,7 +81,7 @@ For example
 ```
 local({
     r <- getOption("repos")
-    r["CRAN"] <- "http://localhost:8081/repository/cran-proxy"
+    r["CRAN"] <- "http://localhost:8080/repository/cran-proxy"
     options(repos=r)
 })
 ```

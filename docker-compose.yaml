@@ -4,8 +4,6 @@ services:
   nexus:
     container_name: nexus
     image: sonatype/nexus3:3.54.1
-    ports:
-      - "8081:8081"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -24,3 +22,10 @@ services:
       - ./allowlists:/allowlists
       - ./nexus-data:/nexus-data
     restart: always
+  reverse-proxy:
+    container_name: reverse-proxy
+    image: caddy:2.6-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
