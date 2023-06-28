@@ -1,8 +1,17 @@
 #! /usr/bin/env python3
+import logging
+import re
 from argparse import ArgumentParser
 from pathlib import Path
-import re
+
 import requests
+
+logging.basicConfig(
+    format="{asctime} {levelname}:{message}",
+    style="{",
+    datefmt="%Y-%m-%dT%H:%M:%S%z",
+    level=logging.INFO
+)
 
 _NEXUS_REPOSITORIES = {
     "pypi_proxy": dict(
@@ -43,8 +52,8 @@ class NexusAPI:
         Args:
             new_password: New password to be set
         """
-        print(f"Old password: {self.password}")
-        print(f"New password: {new_password}")
+        logging.info(f"Old password: {self.password}")
+        logging.info(f"New password: {new_password}")
         response = requests.put(
             f"{self.nexus_api_root}/v1/security/users/admin/change-password",
             auth=self.auth,
@@ -52,11 +61,11 @@ class NexusAPI:
             data=new_password,
         )
         if response.status_code == 204:
-            print("Changed admin password")
+            logging.info("Changed admin password")
             self.password = new_password
         else:
-            print("Changing password failed")
-            print(response.content)
+            logging.error("Changing password failed")
+            logging.error(response.content)
 
     def delete_all_repositories(self):
         """Delete all existing repositories"""
@@ -67,16 +76,16 @@ class NexusAPI:
 
         for repo in repositories:
             name = repo["name"]
-            print(f"Deleting repository: {name}")
+            logging.info(f"Deleting repository: {name}")
             response = requests.delete(
                 f"{self.nexus_api_root}/v1/repositories/{name}", auth=self.auth
             )
             code = response.status_code
             if code == 204:
-                print("Repository successfully deleted")
+                logging.info("Repository successfully deleted")
             else:
-                print(f"Repository deletion failed.\nStatus code:{code}")
-                print(response.content)
+                logging.error(f"Repository deletion failed.\nStatus code:{code}")
+                logging.error(response.content)
 
     def create_proxy_repository(self, repo_type, name, remote_url):
         """
@@ -106,7 +115,7 @@ class NexusAPI:
         payload["name"] = name
         payload["proxy"]["remoteUrl"] = remote_url
 
-        print(f"Creating {repo_type} repository: {name}")
+        logging.info(f"Creating {repo_type} repository: {name}")
         response = requests.post(
             f"{self.nexus_api_root}/v1/repositories/{repo_type}/proxy",
             auth=self.auth,
@@ -114,10 +123,10 @@ class NexusAPI:
         )
         code = response.status_code
         if code == 201:
-            print(f"{repo_type} proxy successfully created")
+            logging.info(f"{repo_type} proxy successfully created")
         else:
-            print(f"{repo_type} proxy creation failed.\nStatus code: {code}")
-            print(response.content)
+            logging.error(f"{repo_type} proxy creation failed.\nStatus code: {code}")
+            logging.error(response.content)
 
     def delete_all_content_selectors(self):
         """Delete all existing content selectors"""
@@ -128,17 +137,17 @@ class NexusAPI:
 
         for content_selector in content_selectors:
             name = content_selector["name"]
-            print(f"Deleting content selector: {name}")
+            logging.info(f"Deleting content selector: {name}")
             response = requests.delete(
                 f"{self.nexus_api_root}/v1/security/content-selectors/{name}",
                 auth=self.auth,
             )
             code = response.status_code
             if code == 204:
-                print("Content selector successfully deleted")
+                logging.info("Content selector successfully deleted")
             else:
-                print(f"Content selector deletion failed.\nStatus code:{code}")
-                print(response.content)
+                logging.error(f"Content selector deletion failed.\nStatus code:{code}")
+                logging.error(response.content)
 
     def create_content_selector(self, name, description, expression):
         """
@@ -156,7 +165,7 @@ class NexusAPI:
             "expression": f"{expression}",
         }
 
-        print(f"Creating content selector: {name}")
+        logging.info(f"Creating content selector: {name}")
         response = requests.post(
             f"{self.nexus_api_root}/v1/security/content-selectors",
             auth=self.auth,
@@ -164,12 +173,12 @@ class NexusAPI:
         )
         code = response.status_code
         if code == 204:
-            print("content selector successfully created")
+            logging.info("content selector successfully created")
         elif code == 500:
-            print("content selector already exists")
+            logging.warning("content selector already exists")
         else:
-            print(f"content selector creation failed.\nStatus code: {code}")
-            print(response.content)
+            logging.error(f"content selector creation failed.\nStatus code: {code}")
+            logging.error(response.content)
 
     def delete_all_content_selector_privileges(self):
         """Delete all existing content selector privileges"""
@@ -183,18 +192,18 @@ class NexusAPI:
                 continue
 
             name = privilege["name"]
-            print(f"Deleting content selector privilege: {name}")
+            logging.info(f"Deleting content selector privilege: {name}")
             response = requests.delete(
                 f"{self.nexus_api_root}/v1/security/privileges/{name}", auth=self.auth
             )
             code = response.status_code
             if code == 204:
-                print(f"Content selector privilege: {name} successfully deleted")
+                logging.info(f"Content selector privilege: {name} successfully deleted")
             else:
-                print(
+                logging.error(
                     "Content selector privilege deletion failed." f"Status code:{code}"
                 )
-                print(response.content)
+                logging.error(response.content)
 
     def create_content_selector_privilege(self, name, description, repo_type,
                                           repo, content_selector):
@@ -218,7 +227,7 @@ class NexusAPI:
             "contentSelector": f"{content_selector}",
         }
 
-        print(f"Creating content selector privilege: {name}")
+        logging.info(f"Creating content selector privilege: {name}")
         response = requests.post(
             (
                 f"{self.nexus_api_root}/v1/security/privileges"
@@ -229,15 +238,15 @@ class NexusAPI:
         )
         code = response.status_code
         if code == 201:
-            print(f"content selector privilege {name} successfully created")
+            logging.info(f"content selector privilege {name} successfully created")
         elif code == 400:
-            print(f"content selector privilege {name} already exists")
+            logging.warning(f"content selector privilege {name} already exists")
         else:
-            print(
+            logging.error(
                 f"content selector privilege {name} creation failed.\n"
                 f"Status code: {code}"
             )
-            print(response.content)
+            logging.error(response.content)
 
     def delete_all_custom_roles(self):
         """Delete all roles except for the default 'nx-admin' and 'nxanonymous'"""
@@ -251,16 +260,16 @@ class NexusAPI:
             if name in ["nx-admin", "nx-anonymous"]:
                 continue
 
-            print(f"Deleting role: {name}")
+            logging.info(f"Deleting role: {name}")
             response = requests.delete(
                 f"{self.nexus_api_root}/v1/security/roles/{name}", auth=self.auth
             )
             code = response.status_code
             if code == 204:
-                print("Role successfully deleted")
+                logging.info("Role successfully deleted")
             else:
-                print(f"Role deletion failed.\nStatus code:{code}")
-                print(response.content)
+                logging.error(f"Role deletion failed.\nStatus code:{code}")
+                logging.error(response.content)
 
     def create_role(self, name, description, privileges, roles=[]):
         """
@@ -280,18 +289,18 @@ class NexusAPI:
             "roles": roles,
         }
 
-        print(f"Creating role: {name}")
+        logging.info(f"Creating role: {name}")
         response = requests.post(
             (f"{self.nexus_api_root}/v1/security/roles"), auth=self.auth, json=payload
         )
         code = response.status_code
         if code == 200:
-            print(f"role {name} successfully created")
+            logging.info(f"role {name} successfully created")
         elif code == 400:
-            print(f"role {name} already exists")
+            logging.warning(f"role {name} already exists")
         else:
-            print(f"role {name} creation failed.\nStatus code: {code}")
-            print(response.content)
+            logging.error(f"role {name} creation failed.\nStatus code: {code}")
+            logging.error(response.content)
 
     def update_role(self, name, description, privileges, roles=[]):
         """
@@ -313,18 +322,18 @@ class NexusAPI:
             "roles": roles,
         }
 
-        print(f"updating role: {name}")
+        logging.info(f"updating role: {name}")
         response = requests.put(
             (f"{self.nexus_api_root}/v1/security/roles/{name}"), auth=self.auth, json=payload
         )
         code = response.status_code
         if code == 204:
-            print(f"role {name} successfully created")
+            logging.info(f"role {name} successfully created")
         elif code == 404:
-            print(f"role {name} does not exist")
+            logging.warning(f"role {name} does not exist")
         else:
-            print(f"role {name} update failed.\nStatus code: {code}")
-            print(response.content)
+            logging.error(f"role {name} update failed.\nStatus code: {code}")
+            logging.error(response.content)
 
     def enable_anonymous_access(self):
         """Enable access from anonymous users (where no credentials are supplied)"""
@@ -339,10 +348,10 @@ class NexusAPI:
         )
         code = response.status_code
         if code == 200:
-            print("Anonymous access enabled")
+            logging.info("Anonymous access enabled")
         else:
-            print(f"Enabling anonymous access failed.\nStatus code: {code}")
-            print(response.content)
+            logging.error(f"Enabling anonymous access failed.\nStatus code: {code}")
+            logging.error(response.content)
 
     def update_anonymous_user_roles(self, roles):
         """
@@ -373,13 +382,13 @@ class NexusAPI:
         )
         code = response.status_code
         if code == 204:
-            print(f"User {anonymous_user['userId']} roles updated")
+            logging.info(f"User {anonymous_user['userId']} roles updated")
         else:
-            print(
+            logging.error(
                 f"User {anonymous_user['userId']} role update failed.\n"
                 f"Status code: {code}"
             )
-            print(response.content)
+            logging.error(response.content)
 
 
 def main():
