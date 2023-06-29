@@ -402,8 +402,8 @@ def main():
     parser.add_argument(
         "--nexus-host",
         type=str,
-        default="http://localhost",
-        help="Hostname of the Nexus server (default http://localhost)"
+        default="localhost",
+        help="Hostname of the Nexus server (default localhost)"
     )
     parser.add_argument(
         "--nexus-port",
