@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 import logging
 import re
+import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -390,6 +391,27 @@ class NexusAPI:
             )
             logging.error(response.content)
 
+    def test_auth(self):
+        """Use list users endpoint to test authentication"""
+        response = requests.get(
+            f"{self.nexus_api_root}/v1/security/users",
+            auth=self.auth,
+            params={
+                "userId": "admin"
+            }
+        )
+        code = response.status_code
+        if code == 200:
+            logging.info("API Authentication test passed")
+            return True
+        elif code in [401, 403]:
+            logging.error("API Authentication test failed")
+            return False
+        else:
+            logging.error(f"API Authentication test inconclusive.\nStatus code:{code}")
+            logging.error(response.content)
+            return False
+
 
 def main():
     parser = ArgumentParser(description="Configure Nexus3")
@@ -452,6 +474,13 @@ def main():
     )
     parser_password.set_defaults(func=change_initial_password)
 
+    # sub-command for authentication test
+    parser_password = subparsers.add_parser(
+        "test-authentication",
+        help="Test authentication settings"
+    )
+    parser_password.set_defaults(func=test_authentiation)
+
     # sub-command for initial configuration
     parser_configure = subparsers.add_parser(
         "initial-configuration",
@@ -503,6 +532,17 @@ def change_initial_password(args):
     )
 
     nexus_api.change_admin_password(args.admin_password)
+
+
+def test_authentiation(args):
+    nexus_api = NexusAPI(
+        password=args.admin_password,
+        nexus_host=args.nexus_host,
+        nexus_port=args.nexus_port
+    )
+
+    if not nexus_api.test_auth():
+        sys.exit(1)
 
 
 def initial_configuration(args):
