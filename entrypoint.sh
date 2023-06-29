@@ -35,5 +35,11 @@ else
     echo "$(timestamp) No initial password file found, skipping initial configuration"
 fi
 
+# Test authentication
+if ! python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" test-authentication; then
+    echo "$(timestamp) API authentication test failed, exiting"
+    exit 1
+fi
+
 # Run allowlist configuration whenever allowlist files are modified
 find "$ALLOWLIST_DIR"/*.allowlist | entr -np python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
