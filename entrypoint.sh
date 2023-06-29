@@ -24,7 +24,7 @@ until curl -s "$NEXUS_HOST":"$NEXUS_PORT" > /dev/null; do
     echo "$(timestamp) Waiting for Nexus"
     sleep 10
 done
-echo "$(timestamp) Connected to Nexus"
+echo "$(timestamp) Nexus is running"
 
 # Initial configuration
 if [ -f "$NEXUS_DATA_DIR/admin.password" ]; then
@@ -33,6 +33,12 @@ if [ -f "$NEXUS_DATA_DIR/admin.password" ]; then
     python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" initial-configuration --packages "$NEXUS_PACKAGES" --pypi-package-file "$ALLOWLIST_DIR/pypi.allowlist" --cran-package-file "$ALLOWLIST_DIR/cran.allowlist"
 else
     echo "$(timestamp) No initial password file found, skipping initial configuration"
+fi
+
+# Test authentication
+if ! python3 configure_nexus.py --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" test-authentication; then
+    echo "$(timestamp) API authentication test failed, exiting"
+    exit 1
 fi
 
 # Run allowlist configuration whenever allowlist files are modified
