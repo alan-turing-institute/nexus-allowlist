@@ -10,3 +10,5 @@ RUN apk add --no-cache curl entr
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 CMD ["./entrypoint.sh"]
+
+HEALTHCHECK CMD python3 configure_nexus.py --admin-password ${NEXUS_ADMIN_PASSWORD} --nexus-host ${NEXUS_HOST} --nexus-port ${NEXUS_PORT} test-authentication
