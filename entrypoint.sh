@@ -24,7 +24,7 @@ until curl -s "$NEXUS_HOST":"$NEXUS_PORT" > /dev/null; do
     echo "$(timestamp) Waiting for Nexus"
     sleep 10
 done
-echo "$(timestamp) Connected to Nexus"
+echo "$(timestamp) Nexus is running"
 
 # Initial configuration
 if [ -f "$NEXUS_DATA_DIR/admin.password" ]; then
