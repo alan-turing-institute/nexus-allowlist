@@ -30,7 +30,7 @@ dependencies = [
   "ruff>=0.0.243",
 ]
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:nexus_allowlist tests}"
+typing = "mypy --install-types --non-interactive {args:nexus_allowlist}"
 style = [
   "ruff {args:.}",
   "black --check --diff {args:.}",
