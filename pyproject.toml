@@ -13,6 +13,9 @@ dependencies = [
   "requests~=2.0",
 ]
 
+[project.scripts]
+nexus-allowlist = "nexus_allowlist.__main__:main"
+
 [tool.hatch.version]
 path = "nexus_allowlist/__about__.py"
 
