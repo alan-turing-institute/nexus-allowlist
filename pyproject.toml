@@ -83,6 +83,8 @@ ignore = [
   "S105", "S106", "S107",
   # Ignore complexity
   "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  # Ignore magic values (for http responses, not ideal)
+  "PLR2004",
 ]
 unfixable = [
   # Don't touch unused imports

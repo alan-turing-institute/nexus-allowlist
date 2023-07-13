@@ -29,8 +29,14 @@ _NEXUS_REPOSITORIES = {
 
 _ROLE_NAME = "nexus user"
 
+_REQUEST_TIMEOUT = 10
 
-class InitialPasswordException(Exception):
+
+class InitialPasswordError(Exception):
+    pass
+
+
+class RepositoryTypeError(Exception):
     pass
 
 
@@ -60,6 +66,7 @@ class NexusAPI:
             auth=self.auth,
             headers={"content-type": "text/plain"},
             data=new_password,
+            timeout=_REQUEST_TIMEOUT,
         )
         if response.status_code == 204:
             logging.info("Changed admin password")
@@ -71,7 +78,9 @@ class NexusAPI:
     def delete_all_repositories(self):
         """Delete all existing repositories"""
         response = requests.get(
-            f"{self.nexus_api_root}/v1/repositories", auth=self.auth
+            f"{self.nexus_api_root}/v1/repositories",
+            auth=self.auth,
+            timeout=_REQUEST_TIMEOUT,
         )
         repositories = response.json()
 
@@ -79,7 +88,9 @@ class NexusAPI:
             name = repo["name"]
             logging.info(f"Deleting repository: {name}")
             response = requests.delete(
-                f"{self.nexus_api_root}/v1/repositories/{name}", auth=self.auth
+                f"{self.nexus_api_root}/v1/repositories/{name}",
+                auth=self.auth,
+                timeout=_REQUEST_TIMEOUT,
             )
             code = response.status_code
             if code == 204:
@@ -97,7 +108,10 @@ class NexusAPI:
             name: Name of the repository
             remote_url: Path of the repository to proxy
         """
-        assert repo_type in ["pypi", "r"]
+        valid_types = ["pypi", "r"]
+        if repo_type not in valid_types:
+            msg = f"repo_type should be one of {valid_types}, got: {repo_type}"
+            raise RepositoryTypeError(msg)
 
         payload = {
             "name": "",
@@ -125,6 +139,7 @@ class NexusAPI:
             f"{self.nexus_api_root}/v1/repositories/{repo_type}/proxy",
             auth=self.auth,
             json=payload,
+            timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
         if code == 201:
@@ -138,6 +153,7 @@ class NexusAPI:
         response = requests.get(
             f"{self.nexus_api_root}/v1/security/content-selectors",
             auth=self.auth,
+            timeout=_REQUEST_TIMEOUT,
         )
         content_selectors = response.json()
 
@@ -147,6 +163,7 @@ class NexusAPI:
             response = requests.delete(
                 f"{self.nexus_api_root}/v1/security/content-selectors/{name}",
                 auth=self.auth,
+                timeout=_REQUEST_TIMEOUT,
             )
             code = response.status_code
             if code == 204:
@@ -176,6 +193,7 @@ class NexusAPI:
             f"{self.nexus_api_root}/v1/security/content-selectors",
             auth=self.auth,
             json=payload,
+            timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
         if code == 204:
@@ -189,7 +207,9 @@ class NexusAPI:
     def delete_all_content_selector_privileges(self):
         """Delete all existing content selector privileges"""
         response = requests.get(
-            f"{self.nexus_api_root}/v1/security/privileges", auth=self.auth
+            f"{self.nexus_api_root}/v1/security/privileges",
+            auth=self.auth,
+            timeout=_REQUEST_TIMEOUT,
         )
         privileges = response.json()
 
@@ -202,13 +222,14 @@ class NexusAPI:
             response = requests.delete(
                 f"{self.nexus_api_root}/v1/security/privileges/{name}",
                 auth=self.auth,
+                timeout=_REQUEST_TIMEOUT,
             )
             code = response.status_code
             if code == 204:
                 logging.info(f"Content selector privilege: {name} successfully deleted")
             else:
                 logging.error(
-                    "Content selector privilege deletion failed." f"Status code:{code}"
+                    f"Content selector privilege deletion failed. Status code:{code}"
                 )
                 logging.error(response.content)
 
@@ -243,6 +264,7 @@ class NexusAPI:
             ),
             auth=self.auth,
             json=payload,
+            timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
         if code == 201:
@@ -251,14 +273,17 @@ class NexusAPI:
             logging.warning(f"content selector privilege {name} already exists")
         else:
             logging.error(
-                f"content selector privilege {name} creation failed.\nStatus code: {code}"
+                f"content selector privilege {name} creation failed."
+                f" Status code: {code}"
             )
             logging.error(response.content)
 
     def delete_all_custom_roles(self):
         """Delete all roles except for the default 'nx-admin' and 'nxanonymous'"""
         response = requests.get(
-            f"{self.nexus_api_root}/v1/security/roles", auth=self.auth
+            f"{self.nexus_api_root}/v1/security/roles",
+            auth=self.auth,
+            timeout=_REQUEST_TIMEOUT,
         )
         roles = response.json()
 
@@ -271,6 +296,7 @@ class NexusAPI:
             response = requests.delete(
                 f"{self.nexus_api_root}/v1/security/roles/{name}",
                 auth=self.auth,
+                timeout=_REQUEST_TIMEOUT,
             )
             code = response.status_code
             if code == 204:
@@ -279,7 +305,7 @@ class NexusAPI:
                 logging.error(f"Role deletion failed.\nStatus code:{code}")
                 logging.error(response.content)
 
-    def create_role(self, name, description, privileges, roles=[]):
+    def create_role(self, name, description, privileges, roles):
         """
         Create a new role
 
@@ -302,6 +328,7 @@ class NexusAPI:
             (f"{self.nexus_api_root}/v1/security/roles"),
             auth=self.auth,
             json=payload,
+            timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
         if code == 200:
@@ -312,7 +339,7 @@ class NexusAPI:
             logging.error(f"role {name} creation failed.\nStatus code: {code}")
             logging.error(response.content)
 
-    def update_role(self, name, description, privileges, roles=[]):
+    def update_role(self, name, description, privileges, roles):
         """
         Update an existing role
 
@@ -337,6 +364,7 @@ class NexusAPI:
             (f"{self.nexus_api_root}/v1/security/roles/{name}"),
             auth=self.auth,
             json=payload,
+            timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
         if code == 204:
@@ -357,6 +385,7 @@ class NexusAPI:
                 "userId": "anonymous",
                 "realName": "Local Authorizing Realm",
             },
+            timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
         if code == 200:
@@ -375,7 +404,9 @@ class NexusAPI:
         """
         # Get existing user data JSON
         response = requests.get(
-            f"{self.nexus_api_root}/v1/security/users", auth=self.auth
+            f"{self.nexus_api_root}/v1/security/users",
+            auth=self.auth,
+            timeout=_REQUEST_TIMEOUT,
         )
         users = response.json()
         for user in users:
@@ -391,13 +422,15 @@ class NexusAPI:
             f"{self.nexus_api_root}/v1/security/users/{anonymous_user['userId']}",
             auth=self.auth,
             json=anonymous_user,
+            timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
         if code == 204:
             logging.info(f"User {anonymous_user['userId']} roles updated")
         else:
             logging.error(
-                f"User {anonymous_user['userId']} role update failed.\nStatus code: {code}"
+                f"User {anonymous_user['userId']} role update failed."
+                f"\nStatus code: {code}"
             )
             logging.error(response.content)
 
@@ -407,6 +440,7 @@ class NexusAPI:
             f"{self.nexus_api_root}/v1/security/users",
             auth=self.auth,
             params={"userId": "admin"},
+            timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
         if code == 200:
@@ -525,9 +559,9 @@ def change_initial_password(args):
     try:
         with password_file_path.open() as password_file:
             initial_password = password_file.read()
-    except FileNotFoundError:
+    except FileNotFoundError as exc:
         msg = "Initial password appears to have been already changed"
-        raise InitialPasswordException(msg)
+        raise InitialPasswordError(msg) from exc
 
     nexus_api = NexusAPI(
         password=initial_password,
@@ -695,19 +729,21 @@ def get_allowlist(allowlist_path, is_cran):
     allowlist = []
     with open(allowlist_path) as allowlist_file:
         # Sanitise package names
-        # - convert to lower case if the package is on PyPI. Leave alone on CRAN to prevent issues with case-sensitivity
-        # - for PyPI replace strings of '.', '_' or '-' with '-' https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#name
-        # - remove any blank entries, which act as a wildcard that would allow any package
+        # - convert to lower case if the package is on PyPI. Leave alone on CRAN to
+        #   prevent issues with case-sensitivity - for PyPI replace strings of '.', '_'
+        #   or '-' with '-'
+        #   https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#name
+        # - remove any blank entries, which act as a wildcard that would allow any
+        #   package
         pypi_replace_characters = re.compile(r"[\._-]+")
         for package_name in allowlist_file.readlines():
             if is_cran:
-                package_name = package_name.strip()
+                package_name_parsed = package_name.strip()
             else:
-                package_name = pypi_replace_characters.sub(
+                package_name_parsed = pypi_replace_characters.sub(
                     "-", package_name.lower().strip()
                 )
-            if package_name:
-                allowlist.append(package_name)
+            allowlist.append(package_name_parsed)
     return allowlist
 
 
@@ -725,7 +761,7 @@ def recreate_repositories(nexus_api):
         nexus_api.create_proxy_repository(**repository)
 
 
-def recreate_privileges(packages, nexus_api, pypi_allowlist=[], cran_allowlist=[]):
+def recreate_privileges(packages, nexus_api, pypi_allowlist, cran_allowlist):
     """
     Create content selectors and content selector privileges based on the
     package setting and allowlists in an idempotent manner
