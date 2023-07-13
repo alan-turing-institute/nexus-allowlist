@@ -1,6 +1,6 @@
 # Nexus Allowlist
 
-A script for configuring [Sonatype Nexus Repository Manager OSS](https://github.com/sonatype/nexus-public) to only allow selected packages to be installed from proxy repositories.
+A package for configuring [Sonatype Nexus Repository Manager OSS](https://github.com/sonatype/nexus-public) to only allow selected packages to be installed from proxy repositories.
 
 Supports creating CRAN and PyPI proxies which allow either all, or only named packages.
 
