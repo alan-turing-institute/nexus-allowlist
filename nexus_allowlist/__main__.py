@@ -456,7 +456,7 @@ class NexusAPI:
 
 
 def main():
-    parser = ArgumentParser(description="Configure Nexus3")
+    parser = ArgumentParser(description="Enforce allowlists for Nexus3")
     parser.add_argument(
         "--admin-password",
         type=str,
