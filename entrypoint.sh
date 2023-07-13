@@ -29,17 +29,17 @@ echo "$(timestamp) Nexus is running"
 # Initial configuration
 if [ -f "$NEXUS_DATA_DIR/admin.password" ]; then
     echo "$(timestamp) Initial password file present, running initial configuration"
-    python3 -m nexus_allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" change-initial-password --path "$NEXUS_DATA_DIR"
-    python3 -m nexus_allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" initial-configuration --packages "$NEXUS_PACKAGES" --pypi-package-file "$ALLOWLIST_DIR/pypi.allowlist" --cran-package-file "$ALLOWLIST_DIR/cran.allowlist"
+    nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" change-initial-password --path "$NEXUS_DATA_DIR"
+    nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" initial-configuration --packages "$NEXUS_PACKAGES" --pypi-package-file "$ALLOWLIST_DIR/pypi.allowlist" --cran-package-file "$ALLOWLIST_DIR/cran.allowlist"
 else
     echo "$(timestamp) No initial password file found, skipping initial configuration"
 fi
 
 # Test authentication
-if ! python3 -m nexus_allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" test-authentication; then
+if ! nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" test-authentication; then
     echo "$(timestamp) API authentication test failed, exiting"
     exit 1
 fi
 
 # Run allowlist configuration whenever allowlist files are modified
-find "$ALLOWLIST_DIR"/*.allowlist | entr -np python3 -m nexus_allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+find "$ALLOWLIST_DIR"/*.allowlist | entr -np nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"

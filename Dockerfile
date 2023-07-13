@@ -14,4 +14,4 @@ RUN pip3 install --no-cache-dir .
 
 CMD ["./entrypoint.sh"]
 
-HEALTHCHECK CMD python3 -m nexus_allowlist --admin-password ${NEXUS_ADMIN_PASSWORD} --nexus-host ${NEXUS_HOST} --nexus-port ${NEXUS_PORT} test-authentication
+HEALTHCHECK CMD nexus-allowlist --admin-password ${NEXUS_ADMIN_PASSWORD} --nexus-host ${NEXUS_HOST} --nexus-port ${NEXUS_PORT} test-authentication
