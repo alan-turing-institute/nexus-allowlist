@@ -19,12 +19,6 @@ nexus-allowlist = "nexus_allowlist.__main__:main"
 [tool.hatch.version]
 path = "nexus_allowlist/__about__.py"
 
-[tool.hatch.envs.default]
-dependencies = [
-  "coverage[toml]>=6.5",
-  "pytest",
-]
-
 [tool.hatch.envs.lint]
 detached = true
 dependencies = [
