@@ -284,7 +284,7 @@ class NexusAPI:
                 logging.error(f"Role deletion failed.\nStatus code:{code}")
                 logging.error(response.content)
 
-    def create_role(self, name, description, privileges, roles=None):
+    def create_role(self, name, description, privileges):
         """
         Create a new role
 
@@ -295,15 +295,11 @@ class NexusAPI:
             roles: Roles to be granted to the role
         """
 
-        if roles is None:
-            roles = []
-
         payload = {
             "id": f"{name}",
             "name": f"{name}",
             "description": f"{description}",
             "privileges": privileges,
-            "roles": roles,
         }
 
         logging.info(f"Creating role: {name}")
@@ -322,7 +318,7 @@ class NexusAPI:
             logging.error(f"role {name} creation failed.\nStatus code: {code}")
             logging.error(response.content)
 
-    def update_role(self, name, description, privileges, roles=None):
+    def update_role(self, name, description, privileges):
         """
         Update an existing role
 
@@ -334,15 +330,11 @@ class NexusAPI:
             roles: Roles to be granted to the role (overwrites all existing
                 roles)
         """
-        if roles is None:
-            roles = []
-
         payload = {
             "id": f"{name}",
             "name": f"{name}",
             "description": f"{description}",
             "privileges": privileges,
-            "roles": roles,
         }
 
         logging.info(f"updating role: {name}")
