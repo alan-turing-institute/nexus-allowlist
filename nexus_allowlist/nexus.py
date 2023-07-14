@@ -47,7 +47,7 @@ class NexusAPI:
             data=new_password,
             timeout=_REQUEST_TIMEOUT,
         )
-        if response.status_code == ResponseCode.NO_CONTENT:
+        if response.status_code == ResponseCode.NO_CONTENT.value:
             logging.info("Changed admin password")
             self.password = new_password
         else:
@@ -72,7 +72,7 @@ class NexusAPI:
                 timeout=_REQUEST_TIMEOUT,
             )
             code = response.status_code
-            if code == ResponseCode.NO_CONTENT:
+            if code == ResponseCode.NO_CONTENT.value:
                 logging.info("Repository successfully deleted")
             else:
                 logging.error(f"Repository deletion failed.\nStatus code:{code}")
@@ -121,7 +121,7 @@ class NexusAPI:
             timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
-        if code == ResponseCode.CREATED:
+        if code == ResponseCode.CREATED.value:
             logging.info(f"{repo_type} proxy successfully created")
         else:
             logging.error(f"{repo_type} proxy creation failed.\nStatus code: {code}")
@@ -145,7 +145,7 @@ class NexusAPI:
                 timeout=_REQUEST_TIMEOUT,
             )
             code = response.status_code
-            if code == ResponseCode.NO_CONTENT:
+            if code == ResponseCode.NO_CONTENT.value:
                 logging.info("Content selector successfully deleted")
             else:
                 logging.error(f"Content selector deletion failed.\nStatus code:{code}")
@@ -175,9 +175,9 @@ class NexusAPI:
             timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
-        if code == ResponseCode.NO_CONTENT:
+        if code == ResponseCode.NO_CONTENT.value:
             logging.info("content selector successfully created")
-        elif code == ResponseCode.INTERNAL_SERVER_ERROR:
+        elif code == ResponseCode.INTERNAL_SERVER_ERROR.value:
             logging.warning("content selector already exists")
         else:
             logging.error(f"content selector creation failed.\nStatus code: {code}")
@@ -204,7 +204,7 @@ class NexusAPI:
                 timeout=_REQUEST_TIMEOUT,
             )
             code = response.status_code
-            if code == ResponseCode.NO_CONTENT:
+            if code == ResponseCode.NO_CONTENT.value:
                 logging.info(f"Content selector privilege: {name} successfully deleted")
             else:
                 logging.error(
@@ -246,9 +246,9 @@ class NexusAPI:
             timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
-        if code == ResponseCode.CREATED:
+        if code == ResponseCode.CREATED.value:
             logging.info(f"content selector privilege {name} successfully created")
-        elif code == ResponseCode.BAD_REQUEST:
+        elif code == ResponseCode.BAD_REQUEST.value:
             logging.warning(f"content selector privilege {name} already exists")
         else:
             logging.error(
@@ -278,7 +278,7 @@ class NexusAPI:
                 timeout=_REQUEST_TIMEOUT,
             )
             code = response.status_code
-            if code == ResponseCode.NO_CONTENT:
+            if code == ResponseCode.NO_CONTENT.value:
                 logging.info("Role successfully deleted")
             else:
                 logging.error(f"Role deletion failed.\nStatus code:{code}")
@@ -310,9 +310,9 @@ class NexusAPI:
             timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
-        if code == ResponseCode.OK:
+        if code == ResponseCode.OK.value:
             logging.info(f"role {name} successfully created")
-        elif code == ResponseCode.BAD_REQUEST:
+        elif code == ResponseCode.BAD_REQUEST.value:
             logging.warning(f"role {name} already exists")
         else:
             logging.error(f"role {name} creation failed.\nStatus code: {code}")
@@ -346,9 +346,9 @@ class NexusAPI:
             timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
-        if code == ResponseCode.NO_CONTENT:
+        if code == ResponseCode.NO_CONTENT.value:
             logging.info(f"role {name} successfully created")
-        elif code == ResponseCode.NOT_FOUND:
+        elif code == ResponseCode.NOT_FOUND.value:
             logging.warning(f"role {name} does not exist")
         else:
             logging.error(f"role {name} update failed.\nStatus code: {code}")
@@ -367,7 +367,7 @@ class NexusAPI:
             timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
-        if code == ResponseCode.OK:
+        if code == ResponseCode.OK.value:
             logging.info("Anonymous access enabled")
         else:
             logging.error(f"Enabling anonymous access failed.\nStatus code: {code}")
@@ -404,7 +404,7 @@ class NexusAPI:
             timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
-        if code == ResponseCode.NO_CONTENT:
+        if code == ResponseCode.NO_CONTENT.value:
             logging.info(f"User {anonymous_user['userId']} roles updated")
         else:
             logging.error(
@@ -422,10 +422,10 @@ class NexusAPI:
             timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
-        if code == ResponseCode.OK:
+        if code == ResponseCode.OK.value:
             logging.info("API Authentication test passed")
             return True
-        elif code in [ResponseCode.UNAUTHORIZED, ResponseCode.FORBIDDEN]:
+        elif code in [ResponseCode.UNAUTHORIZED.value, ResponseCode.FORBIDDEN.value]:
             logging.error("API Authentication test failed")
             return False
         else:
