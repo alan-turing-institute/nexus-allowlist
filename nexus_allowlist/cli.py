@@ -466,7 +466,3 @@ def create_content_selector_and_privilege(
     )
 
     return name
-
-
-if __name__ == "__main__":
-    main()
