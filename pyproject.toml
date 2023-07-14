@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-nexus-allowlist = "nexus_allowlist.__main__:main"
+nexus-allowlist = "nexus_allowlist.cli:main"
 
 [tool.hatch.version]
 path = "nexus_allowlist/__about__.py"
@@ -27,7 +27,7 @@ dependencies = [
   "ruff>=0.0.243",
 ]
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:nexus_allowlist}"
+typing = "mypy --install-types --non-interactive --namespace-packages --explicit-package-bases {args:nexus_allowlist}"
 style = [
   "ruff {args:.}",
   "black --check --diff {args:.}",
