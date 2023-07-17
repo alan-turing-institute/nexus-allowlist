@@ -1,5 +1,6 @@
 import logging
 from enum import Enum
+from typing import Any
 
 import requests
 
@@ -22,16 +23,23 @@ class ResponseCode(Enum):
 class NexusAPI:
     """Interface to the Nexus REST API"""
 
-    def __init__(self, *, password, username="admin", nexus_host, nexus_port):
+    def __init__(
+        self,
+        *,
+        password: str,
+        username: str = "admin",
+        nexus_host: str,
+        nexus_port: str,
+    ) -> None:
         self.nexus_api_root = f"http://{nexus_host}:{nexus_port}/service/rest"
         self.username = username
         self.password = password
 
     @property
-    def auth(self):
+    def auth(self) -> requests.auth.HTTPBasicAuth:
         return requests.auth.HTTPBasicAuth(self.username, self.password)
 
-    def change_admin_password(self, new_password):
+    def change_admin_password(self, new_password: str) -> None:
         """
         Change the password of the 'admin' account
 
@@ -54,7 +62,7 @@ class NexusAPI:
             logging.error("Changing password failed")
             logging.error(response.content)
 
-    def delete_all_repositories(self):
+    def delete_all_repositories(self) -> None:
         """Delete all existing repositories"""
         response = requests.get(
             f"{self.nexus_api_root}/v1/repositories",
@@ -78,7 +86,9 @@ class NexusAPI:
                 logging.error(f"Repository deletion failed.\nStatus code:{code}")
                 logging.error(response.content)
 
-    def create_proxy_repository(self, repo_type, name, remote_url):
+    def create_proxy_repository(
+        self, repo_type: str, name: str, remote_url: str
+    ) -> None:
         """
         Create a proxy repository. Currently supports PyPI and R formats
 
@@ -92,7 +102,7 @@ class NexusAPI:
             msg = f"repo_type should be one of {valid_types}, got: {repo_type}"
             raise RepositoryTypeError(msg)
 
-        payload = {
+        payload: dict[str, Any] = {
             "name": "",
             "online": True,
             "storage": {
@@ -127,7 +137,7 @@ class NexusAPI:
             logging.error(f"{repo_type} proxy creation failed.\nStatus code: {code}")
             logging.error(response.content)
 
-    def delete_all_content_selectors(self):
+    def delete_all_content_selectors(self) -> None:
         """Delete all existing content selectors"""
         response = requests.get(
             f"{self.nexus_api_root}/v1/security/content-selectors",
@@ -151,7 +161,9 @@ class NexusAPI:
                 logging.error(f"Content selector deletion failed.\nStatus code:{code}")
                 logging.error(response.content)
 
-    def create_content_selector(self, name, description, expression):
+    def create_content_selector(
+        self, name: str, description: str, expression: str
+    ) -> None:
         """
         Create a new content selector
 
@@ -162,9 +174,9 @@ class NexusAPI:
                 to identify content
         """
         payload = {
-            "name": f"{name}",
-            "description": f"{description}",
-            "expression": f"{expression}",
+            "name": name,
+            "description": description,
+            "expression": expression,
         }
 
         logging.info(f"Creating content selector: {name}")
@@ -183,7 +195,7 @@ class NexusAPI:
             logging.error(f"content selector creation failed.\nStatus code: {code}")
             logging.error(response.content)
 
-    def delete_all_content_selector_privileges(self):
+    def delete_all_content_selector_privileges(self) -> None:
         """Delete all existing content selector privileges"""
         response = requests.get(
             f"{self.nexus_api_root}/v1/security/privileges",
@@ -213,8 +225,13 @@ class NexusAPI:
                 logging.error(response.content)
 
     def create_content_selector_privilege(
-        self, name, description, repo_type, repo, content_selector
-    ):
+        self,
+        name: str,
+        description: str,
+        repo_type: str,
+        repo: str,
+        content_selector: str,
+    ) -> None:
         """
         Create a new content selector privilege
 
@@ -227,12 +244,12 @@ class NexusAPI:
                 privilege
         """
         payload = {
-            "name": f"{name}",
-            "description": f"{description}",
+            "name": name,
+            "description": description,
             "actions": ["READ"],
-            "format": f"{repo_type}",
-            "repository": f"{repo}",
-            "contentSelector": f"{content_selector}",
+            "format": repo_type,
+            "repository": repo,
+            "contentSelector": content_selector,
         }
 
         logging.info(f"Creating content selector privilege: {name}")
@@ -257,7 +274,7 @@ class NexusAPI:
             )
             logging.error(response.content)
 
-    def delete_all_custom_roles(self):
+    def delete_all_custom_roles(self) -> None:
         """Delete all roles except for the default 'nx-admin' and 'nxanonymous'"""
         response = requests.get(
             f"{self.nexus_api_root}/v1/security/roles",
@@ -284,7 +301,7 @@ class NexusAPI:
                 logging.error(f"Role deletion failed.\nStatus code:{code}")
                 logging.error(response.content)
 
-    def create_role(self, name, description, privileges):
+    def create_role(self, name: str, description: str, privileges: list[str]) -> None:
         """
         Create a new role
 
@@ -296,9 +313,9 @@ class NexusAPI:
         """
 
         payload = {
-            "id": f"{name}",
-            "name": f"{name}",
-            "description": f"{description}",
+            "id": name,
+            "name": name,
+            "description": description,
             "privileges": privileges,
         }
 
@@ -318,7 +335,7 @@ class NexusAPI:
             logging.error(f"role {name} creation failed.\nStatus code: {code}")
             logging.error(response.content)
 
-    def update_role(self, name, description, privileges):
+    def update_role(self, name: str, description: str, privileges: list[str]) -> None:
         """
         Update an existing role
 
@@ -331,9 +348,9 @@ class NexusAPI:
                 roles)
         """
         payload = {
-            "id": f"{name}",
-            "name": f"{name}",
-            "description": f"{description}",
+            "id": name,
+            "name": name,
+            "description": description,
             "privileges": privileges,
         }
 
@@ -353,7 +370,7 @@ class NexusAPI:
             logging.error(f"role {name} update failed.\nStatus code: {code}")
             logging.error(response.content)
 
-    def enable_anonymous_access(self):
+    def enable_anonymous_access(self) -> None:
         """Enable access from anonymous users (where no credentials are supplied)"""
         response = requests.put(
             f"{self.nexus_api_root}/v1/security/anonymous",
@@ -372,7 +389,7 @@ class NexusAPI:
             logging.error(f"Enabling anonymous access failed.\nStatus code: {code}")
             logging.error(response.content)
 
-    def update_anonymous_user_roles(self, roles):
+    def update_anonymous_user_roles(self, roles: list[str]) -> None:
         """
         Update the roles assigned to the 'anonymous' user
 
@@ -412,7 +429,7 @@ class NexusAPI:
             )
             logging.error(response.content)
 
-    def test_auth(self):
+    def test_auth(self) -> bool:
         """Use list users endpoint to test authentication"""
         response = requests.get(
             f"{self.nexus_api_root}/v1/security/users",
