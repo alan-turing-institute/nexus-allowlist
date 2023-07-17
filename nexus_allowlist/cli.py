@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
+import argparse
 import logging
 import sys
-from argparse import ArgumentParser
 from pathlib import Path
 
 from nexus_allowlist import actions
@@ -19,8 +19,8 @@ logging.basicConfig(
 _ROLE_NAME = "nexus user"
 
 
-def main():
-    parser = ArgumentParser(description="Enforce allowlists for Nexus3")
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Enforce allowlists for Nexus3")
     parser.add_argument(
         "--admin-password",
         type=str,
@@ -41,7 +41,7 @@ def main():
     )
 
     # Group of arguments for packages
-    packages_parser = ArgumentParser(add_help=False)
+    packages_parser = argparse.ArgumentParser(add_help=False)
     packages_parser.add_argument(
         "--packages",
         type=str,
@@ -105,7 +105,7 @@ def main():
     args.func(args)
 
 
-def change_initial_password(args):
+def change_initial_password(args: argparse.Namespace) -> None:
     """
     Change the initial password created during Nexus deployment
 
@@ -136,7 +136,7 @@ def change_initial_password(args):
     nexus_api.change_admin_password(args.admin_password)
 
 
-def test_authentiation(args):
+def test_authentiation(args: argparse.Namespace) -> None:
     nexus_api = NexusAPI(
         password=args.admin_password,
         nexus_host=args.nexus_host,
@@ -147,7 +147,7 @@ def test_authentiation(args):
         sys.exit(1)
 
 
-def initial_configuration(args):
+def initial_configuration(args: argparse.Namespace) -> None:
     """
     Fully configure Nexus in an idempotent manner.
 
@@ -201,7 +201,7 @@ def initial_configuration(args):
     nexus_api.enable_anonymous_access()
 
 
-def update_allow_lists(args):
+def update_allow_lists(args: argparse.Namespace) -> None:
     """
     Update which packages anonymous users may access AFTER the initial, full
     configuration of the Nexus server.
