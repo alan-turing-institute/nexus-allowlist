@@ -1,4 +1,8 @@
+import argparse
 import re
+from pathlib import Path
+
+from nexus_allowlist.nexus import NexusAPI
 
 _NEXUS_REPOSITORIES = {
     "pypi_proxy": {
@@ -14,7 +18,7 @@ _NEXUS_REPOSITORIES = {
 }
 
 
-def check_package_files(args):
+def check_package_files(args: argparse.Namespace) -> None:
     """
     Ensure that the allowlist files exist
 
@@ -30,7 +34,9 @@ def check_package_files(args):
             raise Exception(msg)
 
 
-def get_allowlists(pypi_package_file, cran_package_file):
+def get_allowlists(
+    pypi_package_file: Path, cran_package_file: Path
+) -> tuple[list[str], list[str]]:
     """
     Create allowlists for PyPI and CRAN packages
 
@@ -46,15 +52,15 @@ def get_allowlists(pypi_package_file, cran_package_file):
     cran_allowlist = []
 
     if pypi_package_file:
-        pypi_allowlist = get_allowlist(pypi_package_file, False)
+        pypi_allowlist = get_allowlist(pypi_package_file, is_cran=False)
 
     if cran_package_file:
-        cran_allowlist = get_allowlist(cran_package_file, True)
+        cran_allowlist = get_allowlist(cran_package_file, is_cran=True)
 
     return (pypi_allowlist, cran_allowlist)
 
 
-def get_allowlist(allowlist_path, is_cran):
+def get_allowlist(allowlist_path: Path, *, is_cran: bool) -> list[str]:
     """
     Read list of allowed packages from a file
 
@@ -86,7 +92,7 @@ def get_allowlist(allowlist_path, is_cran):
     return allowlist
 
 
-def recreate_repositories(nexus_api):
+def recreate_repositories(nexus_api: NexusAPI) -> None:
     """
     Create PyPI and CRAN proxy repositories in an idempotent manner
 
@@ -100,7 +106,12 @@ def recreate_repositories(nexus_api):
         nexus_api.create_proxy_repository(**repository)
 
 
-def recreate_privileges(packages, nexus_api, pypi_allowlist, cran_allowlist):
+def recreate_privileges(
+    packages: str,
+    nexus_api: NexusAPI,
+    pypi_allowlist: list[str],
+    cran_allowlist: list[str],
+) -> list[str]:
     """
     Create content selectors and content selector privileges based on the
     package setting and allowlists in an idempotent manner
@@ -201,8 +212,13 @@ def recreate_privileges(packages, nexus_api, pypi_allowlist, cran_allowlist):
 
 
 def create_content_selector_and_privilege(
-    nexus_api, name, description, expression, repo_type, repo
-):
+    nexus_api: NexusAPI,
+    name: str,
+    description: str,
+    expression: str,
+    repo_type: str,
+    repo: str,
+) -> str:
     """
     Create a content selector and corresponding content selector privilege
 
