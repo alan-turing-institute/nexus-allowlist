@@ -41,5 +41,5 @@ if ! nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEX
     exit 1
 fi
 
-# Run allowlist configuration whenever allowlist files are modified
-find "$ALLOWLIST_DIR"/*.allowlist | entr -np nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+# Run allowlist configuration now, and again whenever allowlist files are modified
+find "$ALLOWLIST_DIR"/*.allowlist | entr -n nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
