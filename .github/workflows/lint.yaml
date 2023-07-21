@@ -6,11 +6,11 @@ on:
     branches: ["main"]
 
 jobs:
-  lint:
-    name: Lint
+  lint_python:
+    name: Lint Python
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
+      - name: Check out the repository
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -23,3 +23,13 @@ jobs:
 
       - name: Lint
         run: hatch run lint:all
+
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@2.0.0
