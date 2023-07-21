@@ -149,19 +149,18 @@ def test_authentiation(args: argparse.Namespace) -> None:
 
 def initial_configuration(args: argparse.Namespace) -> None:
     """
-    Fully configure Nexus in an idempotent manner.
+    Initial Nexus configuration.
 
     This includes:
         - Deleting all respositories
         - Creating CRAN and PyPI proxies
         - Deleting all content selectors and content selector privileges
-        - Creating content selectors and content selector privileges according
-          to the package setting and allowlists
         - Deleting all non-default roles
-        - Creating a role with the previously defined content selector
-          privileges
+        - Creating a role
         - Giving anonymous users ONLY the previously defined role
         - Enabling anonymous access
+
+    This does not configure the allowlists.
 
     Args:
         args: Command line arguments
@@ -177,24 +176,17 @@ def initial_configuration(args: argparse.Namespace) -> None:
     # Ensure only desired repositories exist
     actions.recreate_repositories(nexus_api)
 
-    pypi_allowlist, cran_allowlist = actions.get_allowlists(
-        args.pypi_package_file, args.cran_package_file
-    )
-    privileges = actions.recreate_privileges(
-        args.packages, nexus_api, pypi_allowlist, cran_allowlist
-    )
-
     # Delete non-default roles
     nexus_api.delete_all_custom_roles()
 
-    # Create a role
+    # Create a role for nexus allowlist
     nexus_api.create_role(
         name=_ROLE_NAME,
         description="allows access to selected packages",
-        privileges=privileges,
+        privileges=[],
     )
 
-    # Update anonymous users roles
+    # Give anonymous users ONLY the nexus allowlist role
     nexus_api.update_anonymous_user_roles([_ROLE_NAME])
 
     # Enable anonymous access
@@ -224,14 +216,18 @@ def update_allow_lists(args: argparse.Namespace) -> None:
         nexus_port=args.nexus_port,
     )
 
+    # Parse allowlists
     pypi_allowlist, cran_allowlist = actions.get_allowlists(
         args.pypi_package_file, args.cran_package_file
     )
+
+    # Recreate all content selectors and associated privileges according to the
+    # allowlists
     privileges = actions.recreate_privileges(
         args.packages, nexus_api, pypi_allowlist, cran_allowlist
     )
 
-    # Update role
+    # Grant privileges to the nexus allowlist role
     nexus_api.update_role(
         name=_ROLE_NAME,
         description="allows access to selected packages",
