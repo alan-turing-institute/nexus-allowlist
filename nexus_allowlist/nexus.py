@@ -4,8 +4,6 @@ from typing import Any
 
 import requests
 
-from nexus_allowlist.exceptions import RepositoryTypeError
-
 _REQUEST_TIMEOUT = 10
 
 
@@ -18,6 +16,11 @@ class ResponseCode(Enum):
     FORBIDDEN = 403
     NOT_FOUND = 404
     INTERNAL_SERVER_ERROR = 500
+
+
+class RepositoryType(Enum):
+    PYPI = "pypi"
+    CRAN = "r"
 
 
 class NexusAPI:
@@ -87,21 +90,16 @@ class NexusAPI:
                 logging.error(response.content)
 
     def create_proxy_repository(
-        self, repo_type: str, name: str, remote_url: str
+        self, repo_type: RepositoryType, name: str, remote_url: str
     ) -> None:
         """
         Create a proxy repository. Currently supports PyPI and R formats
 
         Args:
-            repo_type: Type of repository, one of 'pypi' or 'r'
+            repo_type: Type of repository
             name: Name of the repository
             remote_url: Path of the repository to proxy
         """
-        valid_types = ["pypi", "r"]
-        if repo_type not in valid_types:
-            msg = f"repo_type should be one of {valid_types}, got: {repo_type}"
-            raise RepositoryTypeError(msg)
-
         payload: dict[str, Any] = {
             "name": "",
             "online": True,
@@ -123,18 +121,20 @@ class NexusAPI:
         payload["name"] = name
         payload["proxy"]["remoteUrl"] = remote_url
 
-        logging.info(f"Creating {repo_type} repository: {name}")
+        logging.info(f"Creating {repo_type.value} repository: {name}")
         response = requests.post(
-            f"{self.nexus_api_root}/v1/repositories/{repo_type}/proxy",
+            f"{self.nexus_api_root}/v1/repositories/{repo_type.value}/proxy",
             auth=self.auth,
             json=payload,
             timeout=_REQUEST_TIMEOUT,
         )
         code = response.status_code
         if code == ResponseCode.CREATED.value:
-            logging.info(f"{repo_type} proxy successfully created")
+            logging.info(f"{repo_type.value} proxy successfully created")
         else:
-            logging.error(f"{repo_type} proxy creation failed.\nStatus code: {code}")
+            logging.error(
+                f"{repo_type.value} proxy creation failed.\nStatus code: {code}"
+            )
             logging.error(response.content)
 
     def delete_all_content_selectors(self) -> None:
@@ -228,7 +228,7 @@ class NexusAPI:
         self,
         name: str,
         description: str,
-        repo_type: str,
+        repo_type: RepositoryType,
         repo: str,
         content_selector: str,
     ) -> None:
@@ -247,7 +247,7 @@ class NexusAPI:
             "name": name,
             "description": description,
             "actions": ["READ"],
-            "format": repo_type,
+            "format": repo_type.value,
             "repository": repo,
             "contentSelector": content_selector,
         }
