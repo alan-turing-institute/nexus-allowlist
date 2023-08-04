@@ -275,7 +275,7 @@ class NexusAPI:
             logging.error(response.content)
 
     def delete_all_custom_roles(self) -> None:
-        """Delete all roles except for the default 'nx-admin' and 'nxanonymous'"""
+        """Delete all roles except for the default 'nx-admin' and 'nx-anonymous'"""
         response = requests.get(
             f"{self.nexus_api_root}/v1/security/roles",
             auth=self.auth,
