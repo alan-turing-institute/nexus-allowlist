@@ -10,7 +10,7 @@ from nexus_allowlist.nexus import NexusAPI
 from nexus_allowlist.__about__ import __version__
 
 logging.basicConfig(
-    format="{asctime} {levelname}:{message}",
+    format="{asctime} {levelname}: {message}",
     style="{",
     datefmt="%Y-%m-%dT%H:%M:%S%z",
     level=logging.INFO,
