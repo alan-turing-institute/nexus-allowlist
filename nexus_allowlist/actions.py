@@ -1,8 +1,7 @@
 import argparse
 import re
-from pathlib import Path
-
 from dataclasses import dataclass
+from pathlib import Path
 
 from nexus_allowlist.nexus import NexusAPI, RepositoryType
 
