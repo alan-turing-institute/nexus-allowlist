@@ -1,20 +1,29 @@
 import argparse
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
-from nexus_allowlist.nexus import NexusAPI
+from nexus_allowlist.nexus import NexusAPI, RepositoryType
+
+
+@dataclass
+class Repository:
+    repo_type: RepositoryType
+    name: str
+    remote_url: str
+
 
 _NEXUS_REPOSITORIES = {
-    "pypi_proxy": {
-        "repo_type": "pypi",
-        "name": "pypi-proxy",
-        "remote_url": "https://pypi.org/",
-    },
-    "cran_proxy": {
-        "repo_type": "r",
-        "name": "cran-proxy",
-        "remote_url": "https://cran.r-project.org/",
-    },
+    "pypi_proxy": Repository(
+        repo_type=RepositoryType.PYPI,
+        name="pypi-proxy",
+        remote_url="https://pypi.org/",
+    ),
+    "cran_proxy": Repository(
+        repo_type=RepositoryType.CRAN,
+        name="cran-proxy",
+        remote_url="https://cran.r-project.org/",
+    ),
 }
 
 
@@ -103,7 +112,11 @@ def recreate_repositories(nexus_api: NexusAPI) -> None:
     nexus_api.delete_all_repositories()
 
     for repository in _NEXUS_REPOSITORIES.values():
-        nexus_api.create_proxy_repository(**repository)
+        nexus_api.create_proxy_repository(
+            repo_type=repository.repo_type,
+            name=repository.name,
+            remote_url=repository.remote_url,
+        )
 
 
 def recreate_privileges(
@@ -142,8 +155,8 @@ def recreate_privileges(
         name="simple",
         description="Allow access to 'simple' directory in PyPI repository",
         expression='format == "pypi" and path=^"/simple"',
-        repo_type=_NEXUS_REPOSITORIES["pypi_proxy"]["repo_type"],
-        repo=_NEXUS_REPOSITORIES["pypi_proxy"]["name"],
+        repo_type=_NEXUS_REPOSITORIES["pypi_proxy"].repo_type,
+        repo=_NEXUS_REPOSITORIES["pypi_proxy"].name,
     )
     pypi_privilege_names.append(privilege_name)
 
@@ -154,8 +167,8 @@ def recreate_privileges(
         name="packages",
         description="Allow access to 'PACKAGES' file in CRAN repository",
         expression='format == "r" and path=="/src/contrib/PACKAGES"',
-        repo_type=_NEXUS_REPOSITORIES["cran_proxy"]["repo_type"],
-        repo=_NEXUS_REPOSITORIES["cran_proxy"]["name"],
+        repo_type=_NEXUS_REPOSITORIES["cran_proxy"].repo_type,
+        repo=_NEXUS_REPOSITORIES["cran_proxy"].name,
     )
     cran_privilege_names.append(privilege_name)
 
@@ -168,8 +181,8 @@ def recreate_privileges(
             name="pypi-all",
             description="Allow access to all PyPI packages",
             expression='format == "pypi" and path=^"/packages/"',
-            repo_type=_NEXUS_REPOSITORIES["pypi_proxy"]["repo_type"],
-            repo=_NEXUS_REPOSITORIES["pypi_proxy"]["name"],
+            repo_type=_NEXUS_REPOSITORIES["pypi_proxy"].repo_type,
+            repo=_NEXUS_REPOSITORIES["pypi_proxy"].name,
         )
         pypi_privilege_names.append(privilege_name)
 
@@ -179,8 +192,8 @@ def recreate_privileges(
             name="cran-all",
             description="Allow access to all CRAN packages",
             expression='format == "r" and path=^"/src/contrib"',
-            repo_type=_NEXUS_REPOSITORIES["cran_proxy"]["repo_type"],
-            repo=_NEXUS_REPOSITORIES["cran_proxy"]["name"],
+            repo_type=_NEXUS_REPOSITORIES["cran_proxy"].repo_type,
+            repo=_NEXUS_REPOSITORIES["cran_proxy"].name,
         )
         cran_privilege_names.append(privilege_name)
     elif packages == "selected":
@@ -191,8 +204,8 @@ def recreate_privileges(
                 name=f"pypi-{package}",
                 description=f"Allow access to {package} on PyPI",
                 expression=f'format == "pypi" and path=^"/packages/{package}/"',
-                repo_type=_NEXUS_REPOSITORIES["pypi_proxy"]["repo_type"],
-                repo=_NEXUS_REPOSITORIES["pypi_proxy"]["name"],
+                repo_type=_NEXUS_REPOSITORIES["pypi_proxy"].repo_type,
+                repo=_NEXUS_REPOSITORIES["pypi_proxy"].name,
             )
             pypi_privilege_names.append(privilege_name)
 
@@ -203,8 +216,8 @@ def recreate_privileges(
                 name=f"cran-{package}",
                 description=f"allow access to {package} on CRAN",
                 expression=f'format == "r" and path=^"/src/contrib/{package}_"',
-                repo_type=_NEXUS_REPOSITORIES["cran_proxy"]["repo_type"],
-                repo=_NEXUS_REPOSITORIES["cran_proxy"]["name"],
+                repo_type=_NEXUS_REPOSITORIES["cran_proxy"].repo_type,
+                repo=_NEXUS_REPOSITORIES["cran_proxy"].name,
             )
             cran_privilege_names.append(privilege_name)
 
@@ -216,7 +229,7 @@ def create_content_selector_and_privilege(
     name: str,
     description: str,
     expression: str,
-    repo_type: str,
+    repo_type: RepositoryType,
     repo: str,
 ) -> str:
     """

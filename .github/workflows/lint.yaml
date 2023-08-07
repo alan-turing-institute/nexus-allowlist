@@ -24,6 +24,24 @@ jobs:
       - name: Lint
         run: hatch run lint:all
 
+  typing:
+    name: Typing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Hatch
+        run: pip install hatch
+
+      - name: Lint
+        run: hatch run lint:typing
+
   shellcheck:
     name: Shellcheck
     runs-on: ubuntu-latest
