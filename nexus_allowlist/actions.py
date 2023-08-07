@@ -61,21 +61,21 @@ def get_allowlists(
     cran_allowlist = []
 
     if pypi_package_file:
-        pypi_allowlist = get_allowlist(pypi_package_file, is_cran=False)
+        pypi_allowlist = get_allowlist(pypi_package_file, repo_type=RepositoryType.PYPI)
 
     if cran_package_file:
-        cran_allowlist = get_allowlist(cran_package_file, is_cran=True)
+        cran_allowlist = get_allowlist(cran_package_file, repo_type=RepositoryType.CRAN)
 
     return (pypi_allowlist, cran_allowlist)
 
 
-def get_allowlist(allowlist_path: Path, *, is_cran: bool) -> list[str]:
+def get_allowlist(allowlist_path: Path, repo_type: RepositoryType) -> list[str]:
     """
     Read list of allowed packages from a file
 
     Args:
         allowlist_path: Path to the allowlist file
-        is_cran: True if the allowlist if for CRAN, False if it is for PyPI
+        repo_type: The type of repository the allowlist applies to
 
     Returns:
         List of the package names specified in the file
@@ -91,12 +91,13 @@ def get_allowlist(allowlist_path: Path, *, is_cran: bool) -> list[str]:
         #   package
         pypi_replace_characters = re.compile(r"[\._-]+")
         for package_name in allowlist_file.readlines():
-            if is_cran:
-                package_name_parsed = package_name.strip()
-            else:
-                package_name_parsed = pypi_replace_characters.sub(
-                    "-", package_name.lower().strip()
-                )
+            match repo_type:
+                case RepositoryType.CRAN:
+                    package_name_parsed = package_name.strip()
+                case RepositoryType.PYPI:
+                    package_name_parsed = pypi_replace_characters.sub(
+                        "-", package_name.lower().strip()
+                    )
             allowlist.append(package_name_parsed)
     return allowlist
 
