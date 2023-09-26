@@ -18,6 +18,7 @@ services:
       NEXUS_PACKAGES: "selected"
       NEXUS_HOST: "nexus"
       NEXUS_PORT: "8081"
+      # ENTR_FALLBACK: "yes"
     volumes:
       - ./allowlists:/allowlists
       - ./nexus-data:/nexus-data

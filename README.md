@@ -12,14 +12,15 @@ A [Dockerfile](Dockerfile) and example [docker compose](docker-compose.yaml) con
 
 ### Test deployment
 
-Check and, if you would like, change the following environement variables for the Nexus Allowlist container in [`docker-compose.yaml`](./docker-compose.yaml).
+Check and, if you would like, change the following environment variables for the Nexus Allowlist container in [`docker-compose.yaml`](./docker-compose.yaml).
 
-| Environment variable | meaning                                                                                                     |
-|----------------------|-------------------------------------------------------------------------------------------------------------|
-| NEXUS_ADMIN_PASSWORD | Password for the Nexus OSS admin user (changes from the default on first rune then used for authentication) |
-| NEXUS_PACKAGES       | Whether to allow all packages or only selected packages [`all`, `selected`]                                 |
-| NEXUS_HOST           | Hostname of Nexus OSS host                                                                                  |
-| NEXUS_PORT           | Port of Nexus OSS                                                                                           |
+| Environment variable   | meaning                                                                                                                                          |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------                                    |
+| NEXUS_ADMIN_PASSWORD   | Password for the Nexus OSS admin user (changes from the default on first rune then used for authentication)                                      |
+| NEXUS_PACKAGES         | Whether to allow all packages or only selected packages [`all`, `selected`]                                                                      |
+| NEXUS_HOST             | Hostname of Nexus OSS host                                                                                                                       |
+| NEXUS_PORT             | Port of Nexus OSS                                                                                                                                |
+| ENTR_FALLBACK          | If defined, don't use `entr` to check for allowlist updates (this will be less reactive but we have found `entr` to not work in some situations) |
 
 Example allowlist files are included in the repository for [PyPI](allowlists/pypi.allowlist) and [CRAN](allowlists/cran.allowlist).
 The PyPI allowlist includes numpy, pandas, matplotlib and their dependencies.

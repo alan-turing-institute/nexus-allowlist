@@ -9,6 +9,10 @@ timestamp() {
     date -Is
 }
 
+hashes() {
+    md5sum $PYPI_ALLOWLIST $CRAN_ALLOWLIST
+}
+
 # Ensure allowlist files exist
 if ! [ -f "$PYPI_ALLOWLIST" ]; then
     echo "$(timestamp) PyPI allowlist not found"
@@ -44,5 +48,22 @@ if ! nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEX
     exit 1
 fi
 
-# Run allowlist configuration now, and again whenever allowlist files are modified
-find "$ALLOWLIST_DIR"/*.allowlist | entr -n nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+if [ -n "$ENTR_FALLBACK" ]; then
+    echo "$(timestamp) Using fallback file monitoring"
+    # Run allowlist configuration now
+    nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+    # Periodically check for modification of allowlist files and run configuration again when they are
+    hash=$(hashes)
+    while true; do
+        new_hash=$(hashes)
+        if [ "$hash" != "$new_hash" ]; then
+            nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+            hash=$new_hash
+        fi
+        sleep 5
+    done
+else
+    echo "$(timestamp) Using entr for file monitoring"
+    # Run allowlist configuration now, and again whenever allowlist files are modified
+    find "$ALLOWLIST_DIR"/*.allowlist | entr -n nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+fi
