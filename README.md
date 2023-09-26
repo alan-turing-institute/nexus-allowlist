@@ -12,7 +12,7 @@ A [Dockerfile](Dockerfile) and example [docker compose](docker-compose.yaml) con
 
 ### Test deployment
 
-Check and, if you would like, change the following environement variables for the Nexus Allowlist container in [`docker-compose.yaml`](./docker-compose.yaml).
+Check and, if you would like, change the following environment variables for the Nexus Allowlist container in [`docker-compose.yaml`](./docker-compose.yaml).
 
 | Environment variable | meaning                                                                                                     |
 |----------------------|-------------------------------------------------------------------------------------------------------------|
