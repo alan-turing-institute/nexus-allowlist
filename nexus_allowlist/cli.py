@@ -5,11 +5,12 @@ import sys
 from pathlib import Path
 
 from nexus_allowlist import actions
+from nexus_allowlist.__about__ import __version__
 from nexus_allowlist.exceptions import InitialPasswordError
 from nexus_allowlist.nexus import NexusAPI
 
 logging.basicConfig(
-    format="{asctime} {levelname}:{message}",
+    format="{asctime} {levelname}: {message}",
     style="{",
     datefmt="%Y-%m-%dT%H:%M:%S%z",
     level=logging.INFO,
@@ -38,6 +39,12 @@ def main() -> None:
         type=str,
         default="80",
         help="Port of the Nexus server (default 80)",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"{parser.prog} {__version__}",
+        help="Print the version and exit",
     )
 
     # Group of arguments for packages
