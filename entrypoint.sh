@@ -26,6 +26,9 @@ until curl -s "$NEXUS_HOST":"$NEXUS_PORT" > /dev/null; do
 done
 echo "$(timestamp) Nexus is running"
 
+# Print version
+nexus-allowlist --version
+
 # Initial configuration
 if [ -f "$NEXUS_DATA_DIR/admin.password" ]; then
     echo "$(timestamp) Initial password file present, running initial configuration"
