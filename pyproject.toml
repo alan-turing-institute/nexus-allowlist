@@ -19,6 +19,9 @@ nexus-allowlist = "nexus_allowlist.cli:main"
 [tool.hatch.version]
 path = "nexus_allowlist/__about__.py"
 
+[tool.hatch.build]
+only-include = ["nexus_allowlist/"]
+
 [tool.hatch.envs.lint]
 detached = true
 dependencies = [
