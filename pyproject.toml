@@ -32,12 +32,12 @@ dependencies = [
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --strict --install-types --non-interactive --namespace-packages --explicit-package-bases {args:nexus_allowlist}"
 style = [
-  "ruff {args:.}",
+  "ruff check {args:.}",
   "black --check --diff {args:.}",
 ]
 fmt = [
   "black {args:.}",
-  "ruff --fix {args:.}",
+  "ruff check --fix {args:.}",
   "style",
 ]
 all = [
