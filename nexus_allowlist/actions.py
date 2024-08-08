@@ -173,6 +173,18 @@ def recreate_privileges(
     )
     cran_privilege_names.append(privilege_name)
 
+    # Content selector and privilege for CRAN 'archive.rds' file which contains an
+    # metadata for all archived packages
+    privilege_name = create_content_selector_and_privilege(
+        nexus_api,
+        name="archive",
+        description="Allow access to 'archive.rds' file in CRAN repository",
+        expression='format == "r" and path=="/src/contrib/Meta/archive.rds"',
+        repo_type=_NEXUS_REPOSITORIES["cran_proxy"].repo_type,
+        repo=_NEXUS_REPOSITORIES["cran_proxy"].name,
+    )
+    cran_privilege_names.append(privilege_name)
+
     # Create content selectors and privileges for packages according to the
     # package setting
     if packages == "all":
@@ -216,7 +228,7 @@ def recreate_privileges(
                 nexus_api,
                 name=f"cran-{package}",
                 description=f"allow access to {package} on CRAN",
-                expression=f'format == "r" and path=^"/src/contrib/{package}_"',
+                expression=f'format == "r" and (path=^"/src/contrib/{package}_" or path=^"/src/contrib/Archive/{package}/{package}_")',
                 repo_type=_NEXUS_REPOSITORIES["cran_proxy"].repo_type,
                 repo=_NEXUS_REPOSITORIES["cran_proxy"].name,
             )
