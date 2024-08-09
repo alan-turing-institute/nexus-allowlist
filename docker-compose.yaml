@@ -3,7 +3,7 @@ version: "3"
 services:
   nexus:
     container_name: nexus
-    image: sonatype/nexus3:3.58.1
+    image: sonatype/nexus3:3.71.0
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -25,7 +25,7 @@ services:
     restart: always
   reverse-proxy:
     container_name: reverse-proxy
-    image: caddy:2.7-alpine
+    image: caddy:2.8-alpine
     ports:
       - "8080:80"
     volumes:
