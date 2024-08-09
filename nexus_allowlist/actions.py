@@ -228,7 +228,11 @@ def recreate_privileges(
                 nexus_api,
                 name=f"cran-{package}",
                 description=f"allow access to {package} on CRAN",
-                expression=f'format == "r" and (path=^"/src/contrib/{package}_" or path=^"/src/contrib/Archive/{package}/{package}_")',
+                expression=(
+                    'format == "r" '
+                    f'and (path=^"/src/contrib/{package}_" '
+                    f'or path=^"/src/contrib/Archive/{package}/{package}_")'
+                ),
                 repo_type=_NEXUS_REPOSITORIES["cran_proxy"].repo_type,
                 repo=_NEXUS_REPOSITORIES["cran_proxy"].name,
             )
