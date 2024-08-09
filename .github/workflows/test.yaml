@@ -25,4 +25,4 @@ jobs:
 
       - name: Run tests
         working-directory: integration_tests
-        run: test.sh
+        run: ./test.sh
