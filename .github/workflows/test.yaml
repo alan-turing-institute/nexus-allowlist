@@ -18,10 +18,16 @@ jobs:
         run: docker build -t nexus_allowlist:latest .
 
       - name: Start service
-        run: docker compose up -d
+        run: sudo docker compose up -d
 
       - name: Wait for Nexus to start
-        run: sleep 60
+        run: sleep 180
+
+      - name: Show nexus allowlist container logs
+        run: docker compose logs allowlist
+
+      - name: Show nexus container logs
+        run: docker compose logs nexus
 
       - name: Run tests
         working-directory: integration_tests
