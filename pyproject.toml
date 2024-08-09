@@ -46,7 +46,7 @@ all = [
 ]
 
 [tool.black]
-target-version = ["py310", "py311"]
+target-version = ["py310", "py311", "py312"]
 
 [tool.ruff.lint]
 select = [
