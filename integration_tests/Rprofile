@@ -1,0 +1,9 @@
+.First <- function(){
+    .libPaths("/root/rpackages")
+}
+
+local({
+    r <- getOption("repos")
+    r["CRAN"] <- "http://localhost:8080/repository/cran-proxy"
+    options(repos=r)
+})

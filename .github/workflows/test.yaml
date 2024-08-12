@@ -1,0 +1,34 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+jobs:
+  test:
+    name: Integration tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Build container image
+        run: docker build -t nexus_allowlist:latest .
+
+      - name: Start service
+        run: docker compose up -d
+
+      - name: Wait for Nexus to start
+        run: sleep 120
+
+      - name: Show nexus allowlist container logs
+        run: docker compose logs allowlist
+
+      - name: Show nexus container logs
+        run: docker compose logs nexus
+
+      - name: Run tests
+        working-directory: integration_tests
+        run: ./test.sh
