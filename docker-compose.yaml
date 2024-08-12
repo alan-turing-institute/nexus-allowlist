@@ -6,7 +6,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./nexus-data:/nexus-data
+      - nexus-data:/nexus-data
     restart: always
   allowlist:
     container_name: allowlist
@@ -20,7 +20,7 @@ services:
       # ENTR_FALLBACK: "yes"
     volumes:
       - ./allowlists:/allowlists
-      - ./nexus-data:/nexus-data
+      - nexus-data:/nexus-data
     restart: always
   reverse-proxy:
     container_name: reverse-proxy
@@ -29,3 +29,5 @@ services:
       - "8080:80"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
+volumes:
+  nexus-data:
