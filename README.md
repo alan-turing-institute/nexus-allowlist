@@ -51,7 +51,7 @@ The container [command](entrypoint.sh)
 1. Reruns the content selector configuration (which enforces the allowlists) every time either of the allowlist files are modified
 
 [Caddy](https://caddyserver.com/) acts as a reverse proxy, passing requests to the Nexus OSS server.
-The [configuration file](Caddyfile) replaces [401](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401) responses from Nexus OSS with [403](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403) so that pip does not prompt a user for authentication when attempting to install a blacked package.
+The [configuration file](Caddyfile) replaces [401](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401) responses from Nexus OSS with [403](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403) so that pip does not prompt a user for authentication when attempting to install a blocked package.
 
 ### Usage
 
