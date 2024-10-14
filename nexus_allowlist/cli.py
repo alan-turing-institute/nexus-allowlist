@@ -41,6 +41,12 @@ def main() -> None:
         help="Port of the Nexus server (default 80)",
     )
     parser.add_argument(
+        "--nexus-path",
+        type=str,
+        default="",
+        help="Context path of the Nexus server (default /)",
+    )
+    parser.add_argument(
         "--version",
         action="version",
         version=f"{parser.prog} {__version__}",
@@ -138,6 +144,7 @@ def change_initial_password(args: argparse.Namespace) -> None:
         password=initial_password,
         nexus_host=args.nexus_host,
         nexus_port=args.nexus_port,
+        nexus_path=args.nexus_path,
     )
 
     nexus_api.change_admin_password(args.admin_password)
@@ -148,6 +155,7 @@ def test_authentiation(args: argparse.Namespace) -> None:
         password=args.admin_password,
         nexus_host=args.nexus_host,
         nexus_port=args.nexus_port,
+        nexus_path=args.nexus_path,
     )
 
     if not nexus_api.test_auth():
@@ -178,6 +186,7 @@ def initial_configuration(args: argparse.Namespace) -> None:
         password=args.admin_password,
         nexus_host=args.nexus_host,
         nexus_port=args.nexus_port,
+        nexus_path=args.nexus_path,
     )
 
     # Ensure only desired repositories exist
@@ -221,6 +230,7 @@ def update_allow_lists(args: argparse.Namespace) -> None:
         password=args.admin_password,
         nexus_host=args.nexus_host,
         nexus_port=args.nexus_port,
+        nexus_path=args.nexus_path,
     )
 
     # Parse allowlists
