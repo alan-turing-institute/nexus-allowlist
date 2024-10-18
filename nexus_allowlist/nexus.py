@@ -35,7 +35,9 @@ class NexusAPI:
         nexus_port: str,
         nexus_path: str,
     ) -> None:
-        self.nexus_api_root = f"http://{nexus_host}:{nexus_port}{nexus_path}/service/rest"
+        self.nexus_api_root = (
+            f"http://{nexus_host}:{nexus_port}{nexus_path}/service/rest"
+        )
         self.username = username
         self.password = password
 
