@@ -5,10 +5,9 @@ export ALLOWLIST_DIR=/allowlists
 export PYPI_ALLOWLIST="$ALLOWLIST_DIR"/pypi.allowlist
 export CRAN_ALLOWLIST="$ALLOWLIST_DIR"/cran.allowlist
 
-if [ -z "$NEXUS_PATH" ]; then
-    export CONNECT_ARGS="--admin-password $NEXUS_ADMIN_PASSWORD --nexus-host $NEXUS_HOST --nexus-port $NEXUS_PORT"
-else
-    export CONNECT_ARGS="--admin-password $NEXUS_ADMIN_PASSWORD --nexus-host $NEXUS_HOST --nexus-port $NEXUS_PORT --nexus-path $NEXUS_PATH"
+export CONNECT_ARGS="--admin-password $NEXUS_ADMIN_PASSWORD --nexus-host $NEXUS_HOST --nexus-port $NEXUS_PORT"
+if [ -n "$NEXUS_PATH" ]; then
+    export CONNECT_ARGS="$CONNECT_ARGS --nexus-path $NEXUS_PATH"
 fi
 
 timestamp() {
