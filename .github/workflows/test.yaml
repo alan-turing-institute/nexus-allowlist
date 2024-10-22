@@ -21,7 +21,7 @@ jobs:
         run: docker compose up -d
 
       - name: Wait for Nexus to start
-        run: sleep 120
+        run: sleep 180
 
       - name: Show nexus allowlist container logs
         run: docker compose logs allowlist
