@@ -5,11 +5,6 @@ export ALLOWLIST_DIR=/allowlists
 export PYPI_ALLOWLIST="$ALLOWLIST_DIR"/pypi.allowlist
 export CRAN_ALLOWLIST="$ALLOWLIST_DIR"/cran.allowlist
 
-export CONNECT_ARGS="--admin-password $NEXUS_ADMIN_PASSWORD --nexus-host $NEXUS_HOST --nexus-port $NEXUS_PORT"
-if [ -n "$NEXUS_PATH" ]; then
-    export CONNECT_ARGS="$CONNECT_ARGS --nexus-path $NEXUS_PATH"
-fi
-
 timestamp() {
     date -Is
 }
@@ -41,14 +36,14 @@ nexus-allowlist --version
 # Initial configuration
 if [ -f "$NEXUS_DATA_DIR/admin.password" ]; then
     echo "$(timestamp) Initial password file present, running initial configuration"
-    nexus-allowlist "$CONNECT_ARGS" change-initial-password --path "$NEXUS_DATA_DIR"
-    nexus-allowlist "$CONNECT_ARGS" initial-configuration --packages "$NEXUS_PACKAGES" --pypi-package-file "$ALLOWLIST_DIR/pypi.allowlist" --cran-package-file "$ALLOWLIST_DIR/cran.allowlist"
+    nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" change-initial-password --path "$NEXUS_DATA_DIR"
+    nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" initial-configuration --packages "$NEXUS_PACKAGES" --pypi-package-file "$ALLOWLIST_DIR/pypi.allowlist" --cran-package-file "$ALLOWLIST_DIR/cran.allowlist"
 else
     echo "$(timestamp) No initial password file found, skipping initial configuration"
 fi
 
 # Test authentication
-if ! nexus-allowlist "$CONNECT_ARGS" test-authentication; then
+if ! nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" test-authentication; then
     echo "$(timestamp) API authentication test failed, exiting"
     exit 1
 fi
@@ -56,13 +51,13 @@ fi
 if [ -n "$ENTR_FALLBACK" ]; then
     echo "$(timestamp) Using fallback file monitoring"
     # Run allowlist configuration now
-    nexus-allowlist "$CONNECT_ARGS" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+    nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
     # Periodically check for modification of allowlist files and run configuration again when they are
     hash=$(hashes)
     while true; do
         new_hash=$(hashes)
         if [ "$hash" != "$new_hash" ]; then
-            nexus-allowlist "$CONNECT_ARGS" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+            nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
             hash=$new_hash
         fi
         sleep 5
@@ -70,5 +65,5 @@ if [ -n "$ENTR_FALLBACK" ]; then
 else
     echo "$(timestamp) Using entr for file monitoring"
     # Run allowlist configuration now, and again whenever allowlist files are modified
-    find "$ALLOWLIST_DIR"/*.allowlist | entr -n nexus-allowlist "$CONNECT_ARGS" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+    find "$ALLOWLIST_DIR"/*.allowlist | entr -n nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
 fi
