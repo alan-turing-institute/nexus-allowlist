@@ -1,6 +1,6 @@
 # Nexus Allowlist
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 A package for configuring [Sonatype Nexus Repository Manager OSS](https://github.com/sonatype/nexus-public) to only allow selected packages to be installed from proxy repositories.
@@ -107,6 +107,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tbody>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/JimMadge"><img src="https://avatars.githubusercontent.com/u/23616154?v=4?s=100" width="100px;" alt="Jim Madge"/><br /><sub><b>Jim Madge</b></sub></a><br /><a href="https://github.com/The contributors/nexus-allowlist/issues?q=author%3AJimMadge" title="Bug reports">🐛</a> <a href="https://github.com/The contributors/nexus-allowlist/commits?author=JimMadge" title="Code">💻</a> <a href="https://github.com/The contributors/nexus-allowlist/commits?author=JimMadge" title="Documentation">📖</a> <a href="#ideas-JimMadge" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-JimMadge" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/The contributors/nexus-allowlist/pulls?q=is%3Apr+reviewed-by%3AJimMadge" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/The contributors/nexus-allowlist/commits?author=JimMadge" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/craddm"><img src="https://avatars.githubusercontent.com/u/5796417?v=4?s=100" width="100px;" alt="Matt Craddock"/><br /><sub><b>Matt Craddock</b></sub></a><br /><a href="https://github.com/The contributors/nexus-allowlist/issues?q=author%3Acraddm" title="Bug reports">🐛</a> <a href="https://github.com/The contributors/nexus-allowlist/commits?author=craddm" title="Code">💻</a> <a href="#infra-craddm" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
     </tr>
   </tbody>
 </table>
