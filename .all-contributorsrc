@@ -24,6 +24,17 @@
         "review",
         "test"
       ]
+    },
+    {
+      "login": "craddm",
+      "name": "Matt Craddock",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5796417?v=4",
+      "profile": "https://github.com/craddm",
+      "contributions": [
+        "bug",
+        "code",
+        "infra"
+      ]
     }
   ],
   "contributorsPerLine": 7,
