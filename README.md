@@ -1,4 +1,7 @@
 # Nexus Allowlist
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 A package for configuring [Sonatype Nexus Repository Manager OSS](https://github.com/sonatype/nexus-public) to only allow selected packages to be installed from proxy repositories.
 
@@ -92,3 +95,28 @@ For example,
 
 - `install.packages("data.table")` should succeed
 - `install.packages("ggplot2")` should fail
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JimMadge"><img src="https://avatars.githubusercontent.com/u/23616154?v=4?s=100" width="100px;" alt="Jim Madge"/><br /><sub><b>Jim Madge</b></sub></a><br /><a href="https://github.com/The contributors/nexus-allowlist/issues?q=author%3AJimMadge" title="Bug reports">🐛</a> <a href="https://github.com/The contributors/nexus-allowlist/commits?author=JimMadge" title="Code">💻</a> <a href="https://github.com/The contributors/nexus-allowlist/commits?author=JimMadge" title="Documentation">📖</a> <a href="#ideas-JimMadge" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-JimMadge" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/The contributors/nexus-allowlist/pulls?q=is%3Apr+reviewed-by%3AJimMadge" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/The contributors/nexus-allowlist/commits?author=JimMadge" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/craddm"><img src="https://avatars.githubusercontent.com/u/5796417?v=4?s=100" width="100px;" alt="Matt Craddock"/><br /><sub><b>Matt Craddock</b></sub></a><br /><a href="https://github.com/The contributors/nexus-allowlist/issues?q=author%3Acraddm" title="Bug reports">🐛</a> <a href="https://github.com/The contributors/nexus-allowlist/commits?author=craddm" title="Code">💻</a> <a href="#infra-craddm" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jemrobinson"><img src="https://avatars.githubusercontent.com/u/3502751?v=4?s=100" width="100px;" alt="James Robinson"/><br /><sub><b>James Robinson</b></sub></a><br /><a href="https://github.com/The contributors/nexus-allowlist/issues?q=author%3Ajemrobinson" title="Bug reports">🐛</a> <a href="https://github.com/The contributors/nexus-allowlist/commits?author=jemrobinson" title="Code">💻</a> <a href="https://github.com/The contributors/nexus-allowlist/pulls?q=is%3Apr+reviewed-by%3Ajemrobinson" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Jbaudon"><img src="https://avatars.githubusercontent.com/u/81579455?v=4?s=100" width="100px;" alt="Jbaudon"/><br /><sub><b>Jbaudon</b></sub></a><br /><a href="https://github.com/The contributors/nexus-allowlist/commits?author=Jbaudon" title="Code">💻</a> <a href="https://github.com/The contributors/nexus-allowlist/commits?author=Jbaudon" title="Documentation">📖</a> <a href="#ideas-Jbaudon" title="Ideas, Planning, & Feedback">🤔</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
