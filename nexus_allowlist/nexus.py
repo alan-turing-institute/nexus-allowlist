@@ -4,6 +4,8 @@ from typing import Any
 
 import requests
 
+from nexus_allowlist.settings import APT_DISTRO
+
 _REQUEST_TIMEOUT = 10
 
 
@@ -21,6 +23,7 @@ class ResponseCode(Enum):
 class RepositoryType(Enum):
     PYPI = "pypi"
     CRAN = "r"
+    APT = "apt"
 
 
 class NexusAPI:
@@ -96,7 +99,7 @@ class NexusAPI:
         self, repo_type: RepositoryType, name: str, remote_url: str
     ) -> None:
         """
-        Create a proxy repository. Currently supports PyPI and R formats
+        Create a proxy repository. Currently supports PyPI, R and APT formats
 
         Args:
             repo_type: Type of repository
@@ -123,6 +126,8 @@ class NexusAPI:
         }
         payload["name"] = name
         payload["proxy"]["remoteUrl"] = remote_url
+        if repo_type == RepositoryType.APT:
+            payload["apt"] = {"distribution": APT_DISTRO, "flat": False}
 
         logging.info(f"Creating {repo_type.value} repository: {name}")
         response = requests.post(

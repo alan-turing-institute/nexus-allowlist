@@ -1,0 +1,13 @@
+r-recommended
+r-cran-matrixmodels
+libcurl4-openssl-dev
+libv8-dev
+libxml2-dev
+cmake
+libfontconfig1-dev
+libharfbuzz-dev
+libfribidi-dev
+libfreetype6-dev
+libpng-dev
+libtiff5-dev
+libjpeg-dev

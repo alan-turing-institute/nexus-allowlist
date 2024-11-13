@@ -4,6 +4,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from nexus_allowlist.nexus import NexusAPI, RepositoryType
+from nexus_allowlist.settings import (
+    APT_DISTRO,
+    APT_REMOTE_URL,
+    CRAN_REMOTE_URL,
+    PYPI_REMOTE_URL,
+)
 
 
 @dataclass
@@ -17,12 +23,17 @@ _NEXUS_REPOSITORIES = {
     "pypi_proxy": Repository(
         repo_type=RepositoryType.PYPI,
         name="pypi-proxy",
-        remote_url="https://pypi.org/",
+        remote_url=PYPI_REMOTE_URL,
     ),
     "cran_proxy": Repository(
         repo_type=RepositoryType.CRAN,
         name="cran-proxy",
-        remote_url="https://cran.r-project.org/",
+        remote_url=CRAN_REMOTE_URL,
+    ),
+    "apt_proxy": Repository(
+        repo_type=RepositoryType.APT,
+        name="apt-proxy",
+        remote_url=APT_REMOTE_URL,
     ),
 }
 
@@ -37,28 +48,33 @@ def check_package_files(args: argparse.Namespace) -> None:
     raise:
         Exception: if any declared allowlist file does not exist
     """
-    for package_file in [args.pypi_package_file, args.cran_package_file]:
+    for package_file in [
+        args.pypi_package_file,
+        args.cran_package_file,
+        args.apt_package_file,
+    ]:
         if package_file and not package_file.is_file():
             msg = f"Package allowlist file {package_file} does not exist"
             raise Exception(msg)
 
 
 def get_allowlists(
-    pypi_package_file: Path, cran_package_file: Path
-) -> tuple[list[str], list[str]]:
+    pypi_package_file: Path, cran_package_file: Path, apt_package_file: Path
+) -> tuple[list[str], list[str], list[str]]:
     """
-    Create allowlists for PyPI and CRAN packages
+    Create allowlists for PyPI, CRAN and APT packages
 
     Args:
         pypi_package_file: Path to the PyPI allowlist file or None
         cran_package_file: Path to the CRAN allowlist file or None
 
     Returns:
-        A tuple of the PyPI and CRAN allowlists (in that order). The lists are
+        A tuple of the PyPI, CRAN and APT allowlists (in that order). The lists are
         [] if the corresponding package file argument was None
     """
     pypi_allowlist = []
     cran_allowlist = []
+    apt_allowlist = []
 
     if pypi_package_file:
         pypi_allowlist = get_allowlist(pypi_package_file, repo_type=RepositoryType.PYPI)
@@ -66,7 +82,10 @@ def get_allowlists(
     if cran_package_file:
         cran_allowlist = get_allowlist(cran_package_file, repo_type=RepositoryType.CRAN)
 
-    return (pypi_allowlist, cran_allowlist)
+    if apt_package_file:
+        apt_allowlist = get_allowlist(apt_package_file, repo_type=RepositoryType.APT)
+
+    return (pypi_allowlist, cran_allowlist, apt_allowlist)
 
 
 def get_allowlist(allowlist_path: Path, repo_type: RepositoryType) -> list[str]:
@@ -83,9 +102,9 @@ def get_allowlist(allowlist_path: Path, repo_type: RepositoryType) -> list[str]:
     allowlist = []
     with open(allowlist_path) as allowlist_file:
         # Sanitise package names
-        # - convert to lower case if the package is on PyPI. Leave alone on CRAN to
-        #   prevent issues with case-sensitivity - for PyPI replace strings of '.', '_'
-        #   or '-' with '-'
+        # - convert to lower case if the package is on PyPI or APT. Leave alone on CRAN
+        #   to prevent issues with case-sensitivity - for PyPI replace strings of '.',
+        #   '_' or '-' with '-'
         #   https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#name
         # - remove any blank entries, which act as a wildcard that would allow any
         #   package
@@ -94,6 +113,8 @@ def get_allowlist(allowlist_path: Path, repo_type: RepositoryType) -> list[str]:
             match repo_type:
                 case RepositoryType.CRAN:
                     package_name_parsed = package_name.strip()
+                case RepositoryType.APT:
+                    package_name_parsed = package_name.lower().strip()
                 case RepositoryType.PYPI:
                     package_name_parsed = pypi_replace_characters.sub(
                         "-", package_name.lower().strip()
@@ -104,7 +125,7 @@ def get_allowlist(allowlist_path: Path, repo_type: RepositoryType) -> list[str]:
 
 def recreate_repositories(nexus_api: NexusAPI) -> None:
     """
-    Create PyPI and CRAN proxy repositories in an idempotent manner
+    Create PyPI, CRAN and APT proxy repositories in an idempotent manner
 
     Args:
         nexus_api: NexusAPI object
@@ -125,6 +146,7 @@ def recreate_privileges(
     nexus_api: NexusAPI,
     pypi_allowlist: list[str],
     cran_allowlist: list[str],
+    apt_allowlist: list[str],
 ) -> list[str]:
     """
     Create content selectors and content selector privileges based on the
@@ -134,6 +156,7 @@ def recreate_privileges(
         nexus_api: NexusAPI object
         pypi_allowlist: List of allowed PyPI packages
         cran_allowlist: List of allowed CRAN packages
+        apt_allowlist: List of allowed APT packages
 
     Returns:
         List of the names of all content selector privileges
@@ -148,6 +171,7 @@ def recreate_privileges(
 
     pypi_privilege_names = []
     cran_privilege_names = []
+    apt_privilege_names = []
 
     # Content selector and privilege for PyPI 'simple' path, used to search for
     # packages
@@ -185,6 +209,44 @@ def recreate_privileges(
     )
     cran_privilege_names.append(privilege_name)
 
+    # Content selector and privilege for APT 'Packages.gz' file which contains an
+    # metadata for all archived packages
+    privilege_name = create_content_selector_and_privilege(
+        nexus_api,
+        name="apt-packages",
+        description="Allow access to 'Packages.gz' file in APT repository",
+        expression=f'format == "apt" and path=~"^/dists/{APT_DISTRO}/.*/Packages.gz"',
+        repo_type=_NEXUS_REPOSITORIES["apt_proxy"].repo_type,
+        repo=_NEXUS_REPOSITORIES["apt_proxy"].name,
+    )
+    apt_privilege_names.append(privilege_name)
+
+    # Content selector and privilege for APT 'InRelease' file which contains an
+    # metadata about the APT distribution
+    privilege_name = create_content_selector_and_privilege(
+        nexus_api,
+        name="inrelease",
+        description="Allow access to 'InRelease' file in APT repository",
+        expression=f'format == "apt" and path=="/dists/{APT_DISTRO}/InRelease"',
+        repo_type=_NEXUS_REPOSITORIES["apt_proxy"].repo_type,
+        repo=_NEXUS_REPOSITORIES["apt_proxy"].name,
+    )
+    apt_privilege_names.append(privilege_name)
+
+    # Content selector and privilege for APT 'Translation-*' files which contains an
+    # metadata about the APT distribution
+    privilege_name = create_content_selector_and_privilege(
+        nexus_api,
+        name="apt-translation",
+        description="Allow access to 'Translation-*' file in APT repository",
+        expression=(
+            f'format == "apt" and path=~"^/dists/{APT_DISTRO}/.*/Translation-.*"'
+        ),
+        repo_type=_NEXUS_REPOSITORIES["apt_proxy"].repo_type,
+        repo=_NEXUS_REPOSITORIES["apt_proxy"].name,
+    )
+    apt_privilege_names.append(privilege_name)
+
     # Create content selectors and privileges for packages according to the
     # package setting
     if packages == "all":
@@ -209,6 +271,17 @@ def recreate_privileges(
             repo=_NEXUS_REPOSITORIES["cran_proxy"].name,
         )
         cran_privilege_names.append(privilege_name)
+
+        # Allow all APT packages
+        privilege_name = create_content_selector_and_privilege(
+            nexus_api,
+            name="apt-all",
+            description="Allow access to all APT packages",
+            expression='format == "apt" and path=^"/pool/"',
+            repo_type=_NEXUS_REPOSITORIES["apt_proxy"].repo_type,
+            repo=_NEXUS_REPOSITORIES["apt_proxy"].name,
+        )
+        apt_privilege_names.append(privilege_name)
     elif packages == "selected":
         # Allow selected PyPI packages
         for package in pypi_allowlist:
@@ -238,7 +311,19 @@ def recreate_privileges(
             )
             cran_privilege_names.append(privilege_name)
 
-    return pypi_privilege_names + cran_privilege_names
+        # Allow selected APT packages
+        for package in apt_allowlist:
+            privilege_name = create_content_selector_and_privilege(
+                nexus_api,
+                name=f"apt-{package}",
+                description=f"Allow access to {packages} APT package",
+                expression=f'format == "apt" and path=~"^/pool/.*/{package}.*"',
+                repo_type=_NEXUS_REPOSITORIES["apt_proxy"].repo_type,
+                repo=_NEXUS_REPOSITORIES["apt_proxy"].name,
+            )
+            apt_privilege_names.append(privilege_name)
+
+    return pypi_privilege_names + cran_privilege_names + apt_privilege_names
 
 
 def create_content_selector_and_privilege(

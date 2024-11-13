@@ -76,6 +76,11 @@ def main() -> None:
             "Path of the file of allowed CRAN packages, ignored when PACKAGES is all"
         ),
     )
+    packages_parser.add_argument(
+        "--apt-package-file",
+        type=Path,
+        help="Path of the file of allowed APT packages, ignored when PACKAGES is all",
+    )
 
     subparsers = parser.add_subparsers(title="subcommands", required=True)
 
@@ -168,7 +173,7 @@ def initial_configuration(args: argparse.Namespace) -> None:
 
     This includes:
         - Deleting all respositories
-        - Creating CRAN and PyPI proxies
+        - Creating CRAN, APT and PyPI proxies
         - Deleting all content selectors and content selector privileges
         - Deleting all non-default roles
         - Creating a role
@@ -234,14 +239,14 @@ def update_allow_lists(args: argparse.Namespace) -> None:
     )
 
     # Parse allowlists
-    pypi_allowlist, cran_allowlist = actions.get_allowlists(
-        args.pypi_package_file, args.cran_package_file
+    pypi_allowlist, cran_allowlist, apt_allowlist = actions.get_allowlists(
+        args.pypi_package_file, args.cran_package_file, args.apt_package_file
     )
 
     # Recreate all content selectors and associated privileges according to the
     # allowlists
     privileges = actions.recreate_privileges(
-        args.packages, nexus_api, pypi_allowlist, cran_allowlist
+        args.packages, nexus_api, pypi_allowlist, cran_allowlist, apt_allowlist
     )
 
     # Grant privileges to the nexus allowlist role
