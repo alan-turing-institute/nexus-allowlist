@@ -11,7 +11,7 @@ timestamp() {
 }
 
 hashes() {
-    md5sum $PYPI_ALLOWLIST $CRAN_ALLOWLIST
+    md5sum $PYPI_ALLOWLIST $CRAN_ALLOWLIST $APT_ALLOWLIST
 }
 
 # Ensure allowlist files exist

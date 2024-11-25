@@ -29,6 +29,7 @@ Check and, if you would like, change the following environment variables for the
 | CRAN_REMOTE_URL        | URL of the CRAN Remote repository (`https://cran.r-project.org/` by default) |
 | APT_REMOTE_URL         | URL of the APT Remote repository (`http://deb.debian.org/debian` by default) |
 | APT_DISTRO             | Name of the APT distribution (`bookworm` by default) |
+| APT_ALLOWED_ARCHIVES   | Comma-separated list of the authorized APT archives (`main,contrib,non-free-firmware,non-free` by default) |
 
 Example allowlist files are included in the repository for [PyPI](allowlists/pypi.allowlist), [CRAN](allowlists/cran.allowlist) and [APT](allowlists/apt.allowlist).
 The PyPI allowlist includes numpy, pandas, matplotlib and their dependencies.

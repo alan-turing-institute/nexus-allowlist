@@ -5,6 +5,7 @@ from pathlib import Path
 
 from nexus_allowlist.nexus import NexusAPI, RepositoryType
 from nexus_allowlist.settings import (
+    ALLOWED_ARCHIVES,
     APT_DISTRO,
     APT_REMOTE_URL,
     CRAN_REMOTE_URL,
@@ -277,7 +278,10 @@ def recreate_privileges(
             nexus_api,
             name="apt-all",
             description="Allow access to all APT packages",
-            expression='format == "apt" and path=^"/pool/"',
+            expression=(
+                'format == "apt" and '
+                f'path=~"^/pool/({'|'.join(ALLOWED_ARCHIVES)})/.*"'
+            ),
             repo_type=_NEXUS_REPOSITORIES["apt_proxy"].repo_type,
             repo=_NEXUS_REPOSITORIES["apt_proxy"].name,
         )
@@ -317,7 +321,10 @@ def recreate_privileges(
                 nexus_api,
                 name=f"apt-{package}",
                 description=f"Allow access to {packages} APT package",
-                expression=f'format == "apt" and path=~"^/pool/.*/{package}.*"',
+                expression=(
+                    'format == "apt" and '
+                    f'path=~"^/pool/({'|'.join(ALLOWED_ARCHIVES)})/.*/{package}.*"'
+                ),
                 repo_type=_NEXUS_REPOSITORIES["apt_proxy"].repo_type,
                 repo=_NEXUS_REPOSITORIES["apt_proxy"].name,
             )
