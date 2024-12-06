@@ -4,8 +4,6 @@ from typing import Any
 
 import requests
 
-from nexus_allowlist.settings import APT_DISTRO
-
 _REQUEST_TIMEOUT = 10
 
 
