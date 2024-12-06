@@ -8,8 +8,6 @@ from nexus_allowlist.settings import (
     ALLOWED_ARCHIVES,
     APT_DISTRO,
     APT_REMOTE_URL,
-    CRAN_REMOTE_URL,
-    PYPI_REMOTE_URL,
 )
 
 
@@ -24,12 +22,12 @@ _NEXUS_REPOSITORIES = {
     "pypi_proxy": Repository(
         repo_type=RepositoryType.PYPI,
         name="pypi-proxy",
-        remote_url=PYPI_REMOTE_URL,
+        remote_url="https://pypi.org",
     ),
     "cran_proxy": Repository(
         repo_type=RepositoryType.CRAN,
         name="cran-proxy",
-        remote_url=CRAN_REMOTE_URL,
+        remote_url="https://cran.r-project.org",
     ),
     "apt_proxy": Repository(
         repo_type=RepositoryType.APT,

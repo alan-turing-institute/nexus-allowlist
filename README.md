@@ -25,8 +25,6 @@ Check and, if you would like, change the following environment variables for the
 | NEXUS_PORT             | Port of Nexus OSS                                                                                                                                |
 | NEXUS_PATH             | [Context path](https://help.sonatype.com/en/configuring-the-runtime-environment.html#changing-the-context-path) of Nexus OSS. Only used if the Nexus is hosted behind a reverse proxy with a URL like `https://your_url.domain/nexus/`. If not defined, the base URI remains `/`.                                                                                                                              |
 | ENTR_FALLBACK          | If defined, don't use `entr` to check for allowlist updates (this will be less reactive but we have found `entr` to not work in some situations) |
-| PYPI_REMOTE_URL        | URL of the PYPI Remote repository (`https://pypi.org/` by default) |
-| CRAN_REMOTE_URL        | URL of the CRAN Remote repository (`https://cran.r-project.org/` by default) |
 | APT_REMOTE_URL         | URL of the APT Remote repository (`http://deb.debian.org/debian` by default) |
 | APT_DISTRO             | Name of the APT distribution (`bookworm` by default) |
 | APT_ALLOWED_ARCHIVES   | Comma-separated list of the authorized APT archives (`main,contrib,non-free-firmware,non-free` by default) |
