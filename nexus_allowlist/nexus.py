@@ -45,6 +45,34 @@ class NexusAPI:
     def auth(self) -> requests.auth.HTTPBasicAuth:
         return requests.auth.HTTPBasicAuth(self.username, self.password)
 
+    def accept_eula(self) -> None:
+        """Accept the EULA
+
+        As of Sonatype Nexus Repository Community Edition 3.77.0, the EULA must be
+        accepted before any requests (e.g. package downloads) can be processed.
+        """
+
+        # Get exact EULA text to avoid issues if this changes in future
+        eula = requests.get(
+            f"{self.nexus_api_root}/v1/system/eula",
+            auth=self.auth,
+            timeout=_REQUEST_TIMEOUT,
+        ).json()
+        eula["accepted"] = True
+
+        response = requests.post(
+            f"{self.nexus_api_root}/v1/system/eula",
+            auth=self.auth,
+            json=eula,
+            timeout=_REQUEST_TIMEOUT,
+        )
+        code = response.status_code
+        if code == ResponseCode.NO_CONTENT.value:
+            logging.info("EULA accepted")
+        else:
+            logging.error(f"EULA acceptance failed.\nStatus code: {code}")
+            logging.error(response.content)
+
     def change_admin_password(self, new_password: str) -> None:
         """
         Change the password of the 'admin' account
