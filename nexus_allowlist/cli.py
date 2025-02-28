@@ -174,6 +174,7 @@ def initial_configuration(args: argparse.Namespace) -> None:
         - Creating a role
         - Giving anonymous users ONLY the previously defined role
         - Enabling anonymous access
+        - Accepting the EULA for Sonatype Nexus Repository Community Edition
 
     This does not configure the allowlists.
 
@@ -207,6 +208,9 @@ def initial_configuration(args: argparse.Namespace) -> None:
 
     # Enable anonymous access
     nexus_api.enable_anonymous_access()
+
+    # Accept the EULA
+    nexus_api.accept_eula()
 
 
 def update_allow_lists(args: argparse.Namespace) -> None:

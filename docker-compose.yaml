@@ -2,7 +2,7 @@
 services:
   nexus:
     container_name: nexus
-    image: sonatype/nexus3:3.71.0
+    image: sonatype/nexus3:3.77.2
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
