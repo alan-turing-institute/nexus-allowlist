@@ -17,16 +17,19 @@ A [Dockerfile](Dockerfile) and example [docker compose](docker-compose.yaml) con
 
 Check and, if you would like, change the following environment variables for the Nexus Allowlist container in [`docker-compose.yaml`](./docker-compose.yaml).
 
-| Environment variable   | meaning                                                                                                                                          |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------                                    |
-| NEXUS_ADMIN_PASSWORD   | Password for the Nexus OSS admin user (changes from the default on first rune then used for authentication)                                      |
-| NEXUS_PACKAGES         | Whether to allow all packages or only selected packages [`all`, `selected`]                                                                      |
-| NEXUS_HOST             | Hostname of Nexus OSS host                                                                                                                       |
-| NEXUS_PORT             | Port of Nexus OSS                                                                                                                                |
-| NEXUS_PATH             | [Context path](https://help.sonatype.com/en/configuring-the-runtime-environment.html#changing-the-context-path) of Nexus OSS. Only used if the Nexus is hosted behind a reverse proxy with a URL like `https://your_url.domain/nexus/`. If not defined, the base URI remains `/`.                                                                                                                              |
-| ENTR_FALLBACK          | If defined, don't use `entr` to check for allowlist updates (this will be less reactive but we have found `entr` to not work in some situations) |
+| Environment variable   | meaning                                                                                                                                                                                                                                                                           |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------                                                                                                                                                                     |
+| NEXUS_ADMIN_PASSWORD   | Password for the Nexus OSS admin user (changes from the default on first rune then used for authentication)                                                                                                                                                                       |
+| NEXUS_PACKAGES         | Whether to allow all packages or only selected packages [`all`, `selected`]                                                                                                                                                                                                       |
+| NEXUS_HOST             | Hostname of Nexus OSS host                                                                                                                                                                                                                                                        |
+| NEXUS_PORT             | Port of Nexus OSS                                                                                                                                                                                                                                                                 |
+| NEXUS_PATH             | [Context path](https://help.sonatype.com/en/configuring-the-runtime-environment.html#changing-the-context-path) of Nexus OSS. Only used if the Nexus is hosted behind a reverse proxy with a URL like `https://your_url.domain/nexus/`. If not defined, the base URI remains `/`. |
+| ENTR_FALLBACK          | If defined, don't use `entr` to check for allowlist updates (this will be less reactive but we have found `entr` to not work in some situations)                                                                                                                                  |
+| APT_URL                | URL of the APT Remote repository (`http://deb.debian.org/debian` by default)                                                                                                                                                                                                      |
+| APT_RELEASE            | Name of the APT distribution (`bookworm` by default)                                                                                                                                                                                                                              |
+| APT_ARCHIVES           | Allowed APT archives (`main contrib non-free-firmware non-free` by default)                                                                                                                                                                                                       |
 
-Example allowlist files are included in the repository for [PyPI](allowlists/pypi.allowlist) and [CRAN](allowlists/cran.allowlist).
+Example allowlist files are included in the repository for [PyPI](allowlists/pypi.allowlist), [CRAN](allowlists/cran.allowlist) and [APT](allowlists/apt.allowlist).
 The PyPI allowlist includes numpy, pandas, matplotlib and their dependencies.
 The CRAN allowlist includes cli and data.table
 You can add more packages by writing the package names, one per line, in the allowlist files.
@@ -95,6 +98,22 @@ For example,
 
 - `install.packages("data.table")` should succeed
 - `install.packages("ggplot2")` should fail
+
+#### APT
+
+You can edit '/etc/apt/sources.list' to use the Nexus APT proxy.
+
+For example
+
+```
+deb http://localhost:8080/repository/apt-proxy bookworm main
+```
+
+You should now only be able to install packages from the allowlist.
+For example,
+
+- `sudo apt install libcurl4-openssl-dev` should succeed
+- `sudo apt install tcpdump` should fail
 
 ## Contributors ✨
 

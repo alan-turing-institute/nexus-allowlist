@@ -76,6 +76,27 @@ def main() -> None:
             "Path of the file of allowed CRAN packages, ignored when PACKAGES is all"
         ),
     )
+    packages_parser.add_argument(
+        "--apt-package-file",
+        type=Path,
+        help="Path of the file of allowed APT packages, ignored when PACKAGES is all",
+    )
+    packages_parser.add_argument(
+        "--apt-repository-url",
+        type=str,
+        help="URL of the upstream APT repository to proxy",
+    )
+    packages_parser.add_argument(
+        "--apt-repository-release",
+        type=str,
+        help="The release name for APT packages",
+    )
+    packages_parser.add_argument(
+        "--apt-repository-archives",
+        type=str,
+        nargs="*",
+        help="APT repository archives to allow",
+    )
 
     subparsers = parser.add_subparsers(title="subcommands", required=True)
 
@@ -168,7 +189,7 @@ def initial_configuration(args: argparse.Namespace) -> None:
 
     This includes:
         - Deleting all respositories
-        - Creating CRAN and PyPI proxies
+        - Creating CRAN, APT and PyPI proxies
         - Deleting all content selectors and content selector privileges
         - Deleting all non-default roles
         - Creating a role
@@ -191,7 +212,10 @@ def initial_configuration(args: argparse.Namespace) -> None:
     )
 
     # Ensure only desired repositories exist
-    actions.recreate_repositories(nexus_api)
+    actions.recreate_repositories(
+        nexus_api,
+        actions.get_nexus_repositories(args),
+    )
 
     # Delete non-default roles
     nexus_api.delete_all_custom_roles()
@@ -238,14 +262,21 @@ def update_allow_lists(args: argparse.Namespace) -> None:
     )
 
     # Parse allowlists
-    pypi_allowlist, cran_allowlist = actions.get_allowlists(
-        args.pypi_package_file, args.cran_package_file
+    pypi_allowlist, cran_allowlist, apt_allowlist = actions.get_allowlists(
+        args.pypi_package_file, args.cran_package_file, args.apt_package_file
     )
 
     # Recreate all content selectors and associated privileges according to the
     # allowlists
     privileges = actions.recreate_privileges(
-        args.packages, nexus_api, pypi_allowlist, cran_allowlist
+        args.packages,
+        nexus_api,
+        actions.get_nexus_repositories(args),
+        pypi_allowlist,
+        cran_allowlist,
+        apt_allowlist,
+        args.apt_release,
+        args.apt_archives,
     )
 
     # Grant privileges to the nexus allowlist role

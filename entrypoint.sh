@@ -4,13 +4,26 @@ export NEXUS_DATA_DIR=/nexus-data
 export ALLOWLIST_DIR=/allowlists
 export PYPI_ALLOWLIST="$ALLOWLIST_DIR"/pypi.allowlist
 export CRAN_ALLOWLIST="$ALLOWLIST_DIR"/cran.allowlist
+export APT_ALLOWLIST="$ALLOWLIST_DIR"/apt.allowlist
+
+if [ -z "$APT_URL" ]; then
+    export APT_URL="https://deb.debian.org/debian"
+fi
+
+if [ -z "$APT_RELEASE" ]; then
+    export APT_RELEASE="bookworm"
+fi
+
+if [ -z "$APT_ARCHIVES" ]; then
+    export APT_ARCHIVES="main contrib non-free-firmware non-free"
+fi
 
 timestamp() {
     date -Is
 }
 
 hashes() {
-    md5sum $PYPI_ALLOWLIST $CRAN_ALLOWLIST
+    md5sum $PYPI_ALLOWLIST $CRAN_ALLOWLIST $APT_ALLOWLIST
 }
 
 # Ensure allowlist files exist
@@ -37,7 +50,7 @@ nexus-allowlist --version
 if [ -f "$NEXUS_DATA_DIR/admin.password" ]; then
     echo "$(timestamp) Initial password file present, running initial configuration"
     nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" change-initial-password --path "$NEXUS_DATA_DIR"
-    nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" initial-configuration --packages "$NEXUS_PACKAGES" --pypi-package-file "$ALLOWLIST_DIR/pypi.allowlist" --cran-package-file "$ALLOWLIST_DIR/cran.allowlist"
+    nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" initial-configuration --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST" --apt-package-file "$APT_ALLOWLIST" --apt-repository-url "$APT_URL" --apt-repository-release "$APT_RELEASE" --apt-repository-archives "$APT_ARCHIVES"
 else
     echo "$(timestamp) No initial password file found, skipping initial configuration"
 fi
@@ -51,13 +64,13 @@ fi
 if [ -n "$ENTR_FALLBACK" ]; then
     echo "$(timestamp) Using fallback file monitoring"
     # Run allowlist configuration now
-    nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+    nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST" --apt-package-file "$APT_ALLOWLIST" --apt-repository-url "$APT_URL" --apt-repository-release "$APT_RELEASE" --apt-repository-archives "$APT_ARCHIVES"
     # Periodically check for modification of allowlist files and run configuration again when they are
     hash=$(hashes)
     while true; do
         new_hash=$(hashes)
         if [ "$hash" != "$new_hash" ]; then
-            nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+            nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST" --apt-package-file "$APT_ALLOWLIST" --apt-repository-url "$APT_URL" --apt-repository-release "$APT_RELEASE" --apt-repository-archives "$APT_ARCHIVES"
             hash=$new_hash
         fi
         sleep 5
@@ -65,5 +78,5 @@ if [ -n "$ENTR_FALLBACK" ]; then
 else
     echo "$(timestamp) Using entr for file monitoring"
     # Run allowlist configuration now, and again whenever allowlist files are modified
-    find "$ALLOWLIST_DIR"/*.allowlist | entr -n nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST"
+    find "$ALLOWLIST_DIR"/*.allowlist | entr -n nexus-allowlist --admin-password "$NEXUS_ADMIN_PASSWORD" --nexus-host "$NEXUS_HOST" --nexus-path "$NEXUS_PATH" --nexus-port "$NEXUS_PORT" update-allowlists --packages "$NEXUS_PACKAGES" --pypi-package-file "$PYPI_ALLOWLIST" --cran-package-file "$CRAN_ALLOWLIST" --apt-package-file "$APT_ALLOWLIST" --apt-repository-url "$APT_URL" --apt-repository-release "$APT_RELEASE" --apt-repository-archives "$APT_ARCHIVES"
 fi
